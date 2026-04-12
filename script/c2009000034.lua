@@ -100,7 +100,7 @@ end
 end
 --SSummon itself and 1 other monster
 function s.filter(c,e,tp)
-	return (c:IsLevel(3) and c:IsRace(RACE_PLANT) and c:IsAttribute(ATTRIBUTE_DARK)) or (c:IsSetCard(0xf19)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0xf19) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,1000) end
