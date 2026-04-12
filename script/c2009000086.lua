@@ -2,13 +2,13 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-    Pendulum.AddProcedure(c,false)
-	--activate
+    Pendulum.AddProcedure(c)
+	--Search
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
