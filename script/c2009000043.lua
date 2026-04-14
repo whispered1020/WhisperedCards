@@ -15,19 +15,6 @@ function s.initial_effect(c)
 	e1:SetTarget(s.revtg)
 	e1:SetOperation(s.revop)
 	c:RegisterEffect(e1)
-	--GY effect: banish a monster with Predator Counter that activates its effect
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_REMOVE)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_CHAINING)
-	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetCondition(s.rmcon)
-	e2:SetCost(aux.bfgcost)
-	e2:SetTarget(s.rmtg)
-	e2:SetOperation(s.rmop)
-	c:RegisterEffect(e2)
 end
 
 --Revive
@@ -40,7 +27,7 @@ function s.revcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(c,REASON_COST+REASON_DISCARD)
 end
 function s.rev_filter(c,e,tp)
-	return c:IsLevelBelow(5) and c:IsSetCard(SET_PREDAPLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsLevel(6) and c:IsSetCard(SET_PREDAPLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.revtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.rev_filter(chkc,e,tp) end
@@ -53,20 +40,4 @@ function s.revop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc or not tc:IsRelateToEffect(e) then return end
 	Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-end
---banish
-function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-    local rc=re:GetHandler()
-    return rc and rc:IsOnField() and rc:GetCounter(COUNTER_PREDATOR)>0
-end
-function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
-    local rc=re:GetHandler()
-    if chk==0 then return rc:IsAbleToRemove() end
-    Duel.SetOperationInfo(0,CATEGORY_REMOVE,rc,1,0,0)
-end
-function s.rmop(e,tp,eg,ep,ev,re,r,rp)
-    local rc=re:GetHandler()
-    if rc:IsRelateToEffect(re) and rc:IsOnField() and rc:GetCounter(COUNTER_PREDATOR)>0 then
-        Duel.Remove(rc,POS_FACEUP,REASON_EFFECT)
-    end
 end

@@ -4,10 +4,10 @@ function s.initial_effect(c)
 	--Discard then activate 1 of these effects
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_HANDES+CATEGORY_TOGRAVE+CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_HANDES+CATEGORY_TOGRAVE+CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND)
-    e1:SetCountLimit(1,{id,0})
+    e1:SetCountLimit(1,id)
 	e1:SetCost(s.dscost)
 	e1:SetTarget(s.dstg)
 	e1:SetOperation(s.dsop)
@@ -60,13 +60,13 @@ function s.dscost(e,tp,eg,ep,ev,re,r,rp,chk)
 	c:RegisterEffect(e5)
 end
 function s.dsfilter(c,e,tp)
-	return c:IsSetCard(0xf19) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(SET_PREDAPLANT) and c:IsAbleToHand()
 end
 function s.ds2filter(c)
 	return c:IsSetCard(0xf19) and c:IsAbleToGrave()
 end
 function s.dstg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local b1=Duel.IsExistingTarget(s.dsfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
+	local b1=Duel.IsExistingTarget(aux.NecroValleyFilter(s.dsfilter),tp,LOCATION_GRAVE,0,1,nil,e,tp)
 	local b2=Duel.IsExistingMatchingCard(s.ds2filter,tp,LOCATION_DECK,0,1,nil)
 	if chk==0 then return b1 or b2 end
 	local op=Duel.SelectEffect(tp,
@@ -74,29 +74,30 @@ function s.dstg(e,tp,eg,ep,ev,re,r,rp,chk)
 		{b2,aux.Stringid(id,4)})
 	e:SetLabel(op)
 	if op==1 then
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
 	elseif op==2 then
-	Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+		Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 	end
 end
 function s.dsop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==1 then
-		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,s.dsfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-		if #g>0 then
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+			local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.dsfilter),tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+			if #g>0 then
+				Duel.SendtoHand(g,nil,REASON_EFFECT)
+				Duel.ConfirmCards(1-tp,g)
+			end
 		end
-	end
 	else
-	if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 then
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.ds2filter,tp,LOCATION_DECK,0,1,1,nil)
-		if #g>0 then
-		Duel.SendtoGrave(g,REASON_EFFECT)
+		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+			local g=Duel.SelectMatchingCard(tp,s.ds2filter,tp,LOCATION_DECK,0,1,1,nil)
+			if #g>0 then
+				Duel.SendtoGrave(g,REASON_EFFECT)
+			end
 		end
 	end
-end
 end
 --SSummon itself and 1 other monster
 function s.filter(c,e,tp)
@@ -142,12 +143,13 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return re:GetHandler():IsRace(RACE_PLANT) and re:GetOwner()~=c and re:IsMonsterEffect()
 end
 function s.sp2filter(c,e,tp)
-	return c:IsSetCard(SET_PREDAPLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(SET_PREDAPLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
 end
 function s.sp2tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(s.sp2filter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+		and Duel.IsExistingTarget(s.sp2filter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectTarget(tp,s.sp2filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
@@ -157,15 +159,15 @@ function s.sp2op(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then 
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-	local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,COUNTER_PREDATOR,1):GetFirst()
+		local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,COUNTER_PREDATOR,1):GetFirst()
 		if g:AddCounter(COUNTER_PREDATOR,1) and g:GetLevel()>1 then
-		local e6=Effect.CreateEffect(e:GetHandler())
-		e6:SetType(EFFECT_TYPE_SINGLE)
-		e6:SetCode(EFFECT_CHANGE_LEVEL)
-		e6:SetReset(RESET_EVENT|RESETS_STANDARD)
-		e6:SetCondition(s.lvcon)
-		e6:SetValue(1)
-		g:RegisterEffect(e6)
+			local e6=Effect.CreateEffect(e:GetHandler())
+			e6:SetType(EFFECT_TYPE_SINGLE)
+			e6:SetCode(EFFECT_CHANGE_LEVEL)
+			e6:SetReset(RESET_EVENT|RESETS_STANDARD)
+			e6:SetCondition(s.lvcon)
+			e6:SetValue(1)
+			g:RegisterEffect(e6)
 		end
 	end
 end

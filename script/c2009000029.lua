@@ -25,18 +25,6 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sp2tg)
 	e2:SetOperation(s.sp2op)
 	c:RegisterEffect(e2)
-	--Discard to change lvl and special summon token
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_HANDES)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCountLimit(1,{id,2})
-	e3:SetCost(s.cost)
-	e3:SetTarget(s.target)
-	e3:SetOperation(s.operation)
-	c:RegisterEffect(e3)
 end
 --Discard then SpSummon
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -52,7 +40,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	c:RegisterEffect(e1)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x123) and not c:IsSetCard(0x1123) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x123) and not c:IsSetCard(0x1123) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsAttackAbove(600)
 end
 function s.disfilter(c,e,tp)
 	return (c:IsSetCard(0xf19) or c:IsSetCard(0x123) or c:IsSetCard(0x1123)) and c:IsDiscardable()
@@ -132,44 +120,4 @@ function s.sp2op(e,tp,eg,ep,ev,re,r,rp)
 		end
 		Duel.SpecialSummonComplete()
 	end
-end
---Special Summon Rose token
-function s.cost2filter(c)
-	return (c:IsSetCard(0x123) or c:IsSetCard(0x1123)) and c:IsAbleToGraveAsCost() and c:IsMonster()
-end
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cost2filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.cost2filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,1,nil)
-	Duel.SendtoGrave(g,REASON_COST)
-end
-function s.filter(c)
-	return (c:IsSetCard(0xf19) or c:IsSetCard(0x123) or c:IsSetCard(0x1123)) and c:IsFaceup() and c:HasLevel()
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
-end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	local lv2=Duel.GetFirstTarget():GetLevel()
-	local lv=Duel.AnnounceNumber(tp,1,2)
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
-        local e1=Effect.CreateEffect(e:GetHandler())
-        e1:SetType(EFFECT_TYPE_SINGLE)
-        e1:SetCode(EFFECT_CHANGE_LEVEL)
-        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-        e1:SetValue(lv+lv2)
-        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-        tc:RegisterEffect(e1)
-        if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
-				and Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_ROSE,0,TYPES_TOKEN,800,800,2,RACE_PLANT,ATTRIBUTE_DARK,POS_FACEUP_ATTACK,tp) then
-				local token=Duel.CreateToken(tp,TOKEN_ROSE)
-				Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
-			end
-		end
 end
