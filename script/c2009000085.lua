@@ -102,7 +102,7 @@ function s.filter(c,e,tp)
 end
 --
 function s.sp2con(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:GetHandler():IsRace(RACE_PLANT) and re:IsMonsterEffect()
+	return re and re:GetHandler():IsRace(RACE_PLANT) and re:IsMonsterEffect() and re:GetOwner()~=c
 end
 function s.sp2filter(c,e,tp,zone)
 	return c:IsSetCard(SET_SUNSEED) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,tp,zone) and not c:IsNonEffectMonster()
