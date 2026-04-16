@@ -41,8 +41,9 @@ function s.initial_effect(c)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e3:SetCountLimit(1,{id,2})
-	e3:SetTarget(s.rmtg)
-	e3:SetOperation(s.rmop)
+	e3:SetCondition(s.dscon)
+	e3:SetTarget(s.dstg)
+	e3:SetOperation(s.dsop)
 	c:RegisterEffect(e3)
 end
 
