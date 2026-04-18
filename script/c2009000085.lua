@@ -2,13 +2,13 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-    Pendulum.AddProcedure(c,false)
+    Pendulum.AddProcedure(c)
 	--activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_PZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
@@ -38,7 +38,7 @@ function s.initial_effect(c)
 end
 
 function s.thfilter(c)
-	return c:IsMonster() and c:IsAbleToHand() and (c:IsSetCard(SET_SUNVINE)) or (c:IsSetCard(0xf19) and not c:IsRitualMonster())
+	return c:IsMonster() and c:IsAbleToHand() and (c:IsSetCard(SET_SUNVINE)) or (c:IsSetCard(0xf19) and c:IsLocation(LOCATION_GRAVE) and not c:IsRitualMonster())
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil) end
