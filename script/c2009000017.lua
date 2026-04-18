@@ -42,7 +42,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spfilter(c,e,tp)
 	return c:IsRace(RACE_PLANT) and c:IsType(TYPE_EFFECT) and c:IsLevel(1) 
-	and c:IsAttribute(ATTRIBUTE_EARTH) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	and c:IsAttribute({ATTRIBUTE_EARTH,ATTRIBUTE_WIND,ATTRIBUTE_LIGHT}) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
