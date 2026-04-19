@@ -150,24 +150,25 @@ function s.sp2tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingTarget(s.sp2filter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
 	end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectTarget(tp,s.sp2filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
-	Duel.SetPossibleOperationInfo(0,CATEGORY_COUNTER,nil,1,0,COUNTER_SPELL)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
+	--Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,COUNTER_PREDATOR,1)
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0,COUNTER_PREDATOR)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
 end
 function s.sp2op(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then 
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
-		local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,COUNTER_PREDATOR,1):GetFirst()
-		if g:AddCounter(COUNTER_PREDATOR,1) and g:GetLevel()>1 then
+	if tc:IsRelateToEffect(e) then
+		if tc:AddCounter(COUNTER_PREDATOR,1) and tc:GetLevel()>1 then
 			local e6=Effect.CreateEffect(e:GetHandler())
 			e6:SetType(EFFECT_TYPE_SINGLE)
 			e6:SetCode(EFFECT_CHANGE_LEVEL)
 			e6:SetReset(RESET_EVENT|RESETS_STANDARD)
 			e6:SetCondition(s.lvcon)
 			e6:SetValue(1)
-			g:RegisterEffect(e6)
+			tc:RegisterEffect(e6)
+			local g=Duel.SelectTarget(tp,s.sp2filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp):GetFirst()
+			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		end
 	end
 end
