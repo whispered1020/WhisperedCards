@@ -146,19 +146,18 @@ function s.sp2filter(c,e,tp)
 	return c:IsSetCard(SET_PREDAPLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(id)
 end
 function s.sp2tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingTarget(s.sp2filter,tp,LOCATION_GRAVE,0,1,nil,e,tp)
+	if chkc then return false end
+	if chk==0 then return
+		Duel.IsExistingTarget(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
-	--Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,COUNTER_PREDATOR,1)
 	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0,COUNTER_PREDATOR)
 	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
 end
 function s.sp2op(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc and tc:IsRelateToEffect(e) then
 		if tc:AddCounter(COUNTER_PREDATOR,1) and tc:GetLevel()>1 then
 			local e6=Effect.CreateEffect(e:GetHandler())
 			e6:SetType(EFFECT_TYPE_SINGLE)
@@ -167,8 +166,14 @@ function s.sp2op(e,tp,eg,ep,ev,re,r,rp)
 			e6:SetCondition(s.lvcon)
 			e6:SetValue(1)
 			tc:RegisterEffect(e6)
-			local g=Duel.SelectTarget(tp,s.sp2filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp):GetFirst()
-			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		end
+		Duel.BreakEffect()
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+			local g=Duel.SelectMatchingCard(tp,s.sp2filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+			if #g>0 then
+				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+			end
 		end
 	end
 end
