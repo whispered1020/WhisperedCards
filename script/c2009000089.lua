@@ -54,7 +54,7 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	c:RegisterEffect(e1)
 end
 function s.thfilter(c)
-	return c:IsSetCard(SET_NATURIA) and c:IsAbleToHand() and c:IsSpellTrap()
+	return c:ListsArchetype(SET_NATURIA) and c:IsAbleToHand() and c:IsSpellTrap()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil) end
