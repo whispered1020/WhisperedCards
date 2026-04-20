@@ -103,7 +103,7 @@ function s.th2con(e,tp,eg,ep,ev,re,r,rp)
 	return re and re:GetHandler():IsRace(RACE_PLANT) and re:GetOwner()~=c and re:IsMonsterEffect()
 end
 function s.th2filter(c)
-	return c:IsSetCard(0xf19) and c:IsSpellTrap() and c:IsAbleToHand()
+	return (c:IsSetCard(0xf19) or c:IsSetCard(SET_NATURIA)) and c:IsSpellTrap() and c:IsAbleToHand()
 end
 function s.th2tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.th2filter,tp,LOCATION_GRAVE,0,1,nil) end
