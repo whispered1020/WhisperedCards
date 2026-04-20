@@ -30,29 +30,25 @@ function s.initial_effect(c)
     --if sent to gy by a plant monster's effect
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_DESTROY)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_TO_GRAVE)
 	e3:SetCountLimit(1,{id,2})
-	e3:SetCondition(s.sgcon)
-	e3:SetTarget(s.sgtg)
-	e3:SetOperation(s.sgop)
+	e3:SetCondition(s.pzcon)
+	e3:SetTarget(function(e,tp,eg,ep,ev,re,r,rp,chk) if chk==0 then return Duel.CheckPendulumZones(tp) end end)
+	e3:SetOperation(s.pzop)
 	c:RegisterEffect(e3)
-    --Negate and banish
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
-	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_CHAINING)
-	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
-	e4:SetRange(LOCATION_MZONE)
-	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(s.discon)
-	e4:SetCost(s.discost)
-	e4:SetTarget(s.distg)
-	e4:SetOperation(s.disop)
-	c:RegisterEffect(e4)
+    --battle and effect protection
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,3))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e1:SetCondition(function(e) return e:GetHandler():IsRitualSummoned() end)
+	e1:SetTarget(s.cannotdestg)
+	e1:SetOperation(s.cannotdesop)
+	c:RegisterEffect(e1)
 end
 s.listed_names={2009000022}
 s.listed_series={0xf19}
@@ -87,46 +83,40 @@ function s.rtop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SendtoHand(c,nil,REASON_EFFECT)
 end
 --if sent to gy by a plant monster's effect
-function s.sgcon(e,tp,eg,ep,ev,re,r,rp)
+function s.pzcon(e,tp,eg,ep,ev,re,r,rp)
 	return re and re:GetHandler():IsRace(RACE_PLANT) and re:GetOwner()~=c and re:IsMonsterEffect()
 end
-function s.sgtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
-	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
-end
-function s.sgop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.Destroy(tc,REASON_EFFECT)
-	end
-end
---Negate and banish
-function s.discon(e,tp,eg,ep,ev,re,r,rp)
+function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsStatus(STATUS_BATTLE_DESTROYED) then return false end
-	return Duel.IsChainNegatable(ev) and Duel.GetTurnPlayer()~=tp
-end
-function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
-	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
-end
-function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local rc=re:GetHandler()
-	local relation=rc:IsRelateToEffect(re)
-	if chk==0 then return rc:IsAbleToRemove(tp)
-		or (not relation and Duel.IsPlayerCanRemove(tp)) end
-	Duel.SetOperationInfo(0,CATEGORY_NEGATE,eg,1,0,0)
-	if relation then
-		Duel.SetOperationInfo(0,CATEGORY_REMOVE,rc,1,rc:GetControler(),rc:GetLocation())
-	else
-		Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,0,0,rc:GetPreviousLocation())
+	if c:IsRelateToEffect(e) then
+		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
 end
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
+--Protection
+function s.cannotdesfilter(c)
+	return c:IsRace(RACE_PLANT) and c:IsFaceup() and not c:HasFlagEffect(id)
+end
+function s.cannotdestg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.cannotdesfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.cannotdesfilter,tp,LOCATION_MZONE,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_APPLYTO)
+	Duel.SelectTarget(tp,s.cannotdesfilter,tp,LOCATION_MZONE,0,1,1,nil)
+end
+function s.cannotdesop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) and not tc:HasFlagEffect(id) then
+		tc:RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,2)
+		--Cannot be destroyed by battle or card effect
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(3008)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+		e1:SetValue(1)
+		e1:SetReset(RESETS_STANDARD_PHASE_END,2)
+		tc:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+		tc:RegisterEffect(e2)
 	end
 end
