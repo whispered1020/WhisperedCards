@@ -38,7 +38,7 @@ function s.initial_effect(c)
 end
 
 function s.thfilter(c)
-	return c:IsMonster() and c:IsAbleToHand() and (c:IsSetCard(SET_SUNVINE)) or (c:IsSetCard(0xf19) and c:IsLocation(LOCATION_GRAVE) and not c:IsRitualMonster())
+	return (c:IsMonster() and c:IsAbleToHand() and c:IsSetCard(SET_SUNVINE)) or (c:IsSetCard(0xf19) and c:IsLocation(LOCATION_GRAVE) and c:IsMonster() and c:IsAbleToHand() and not c:IsRitualMonster())
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil) end
