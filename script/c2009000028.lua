@@ -89,7 +89,7 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	or (re and re:GetHandler():IsRace(RACE_PLANT) and re:GetOwner()~=c and re:IsMonsterEffect())
 end
 function s.th2filter(c)
-	return (c:IsSetCard(0xf19) or c:IsSetCard(0x90)) and c:IsSpellTrap() and c:IsAbleToHand() and not c:IsCode(2009000023) and not c:IsType(TYPE_CONTINUOUS)
+	return (c:IsSetCard(0xf19) and c:IsSpell() and not c:IsType(TYPE_CONTINUOUS)) or (c:IsSetCard(0x90) and c:IsSpellTrap()) and c:IsAbleToHand() and not c:IsCode(2009000023)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.th2filter,tp,LOCATION_DECK,0,1,nil) end
