@@ -48,7 +48,7 @@ function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0xf19) and not c:IsHasEffect(EFFECT_EXTRA_ATTACK)
 end
 function s.disfilter(c)
-	return c:IsType(TYPE_PLANT) and c:IsDiscardable()
+	return c:IsRace(RACE_PLANT) and c:IsDiscardable()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.filter(chkc) end

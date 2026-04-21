@@ -52,7 +52,7 @@ function s.rdcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	c:RegisterEffect(e1)
 end
 function s.disfilter(c)
-	return c:IsType(TYPE_PLANT) and c:IsDiscardable()
+	return c:IsRace(RACE_PLANT) and c:IsDiscardable()
 end
 function s.rdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
