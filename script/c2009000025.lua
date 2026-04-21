@@ -2,6 +2,7 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
+	c:EnableReviveLimit()
 	--Discard then reduce atk
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
