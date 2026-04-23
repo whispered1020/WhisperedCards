@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
 	--Ritual Summon
-	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsRace,RACE_PLANT),nil,aux.Stringid(id,2),nil,nil,nil,nil,LOCATION_HAND)
+	local e3=Ritual.CreateProc(c,RITPROC_GREATER,aux.FilterBoolFunction(Card.IsRace,RACE_PLANT),nil,aux.Stringid(id,2),nil,nil,nil,nil,LOCATION_HAND|LOCATION_GRAVE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetHintTiming(0,TIMING_MAIN_END)
