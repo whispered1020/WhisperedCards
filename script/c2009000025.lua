@@ -83,7 +83,7 @@ end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return re and re:GetHandler():IsRace(RACE_PLANT) and re:GetOwner()~=c
-	and re:IsMonsterEffect() and c:IsPreviousLocation(LOCATION_HAND)
+	and re:IsMonsterEffect() and (c:IsPreviousLocation(LOCATION_HAND) or c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP))
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and chkc:IsSpellTrap() end
