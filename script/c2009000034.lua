@@ -63,7 +63,7 @@ function s.dsfilter(c,e,tp)
 	return c:IsSetCard(SET_PREDAPLANT) and c:IsAbleToHand()
 end
 function s.ds2filter(c)
-	return c:IsSetCard(0xf19) and c:IsAbleToGrave()
+	return (c:IsSetCard(0xf19) or (c:IsSetCard(SET_PREDAPLANT) and c:IsMonster())) and c:IsAbleToGrave()
 end
 function s.dstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingTarget(aux.NecroValleyFilter(s.dsfilter),tp,LOCATION_GRAVE,0,1,nil,e,tp)
@@ -81,7 +81,7 @@ function s.dstg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.dsop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==1 then
-		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 then
+		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 			local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.dsfilter),tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 			if #g>0 then
@@ -90,7 +90,7 @@ function s.dsop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	else
-		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)>0 then
+		if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 			local g=Duel.SelectMatchingCard(tp,s.ds2filter,tp,LOCATION_DECK,0,1,1,nil)
 			if #g>0 then
@@ -119,14 +119,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not c:IsRelateToEffect(e) then return end
 	if Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT) then return end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<2 then return end
-	--Cannot Special Summon for the rest of this turn, except Plant monsters
+	--Cannot Special Summon for the rest of this turn, except Plant or Dragon monsters
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(id,5))
 	e0:SetType(EFFECT_TYPE_FIELD)
 	e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
 	e0:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
 	e0:SetTargetRange(1,0)
-	e0:SetTarget(function(_,c) return not c:IsRace(RACE_PLANT) end)
+	e0:SetTarget(function(e,c) return c:IsRaceExcept(RACE_DRAGON|RACE_PLANT) end)
 	e0:SetReset(RESET_PHASE|PHASE_END)
 	Duel.RegisterEffect(e0,tp)
 	--Special Summon from Deck
