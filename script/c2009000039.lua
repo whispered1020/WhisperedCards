@@ -37,17 +37,16 @@ function s.initial_effect(c)
 	e3:SetTarget(s.addtg)
 	e3:SetOperation(s.addop)
 	c:RegisterEffect(e3)
-	--Add to hand
+	--Place on field
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e4:SetProperty(EFFECT_FLAG_DELAY)
 	e4:SetCode(EVENT_BE_MATERIAL)
 	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(s.tdcon)
-	e4:SetTarget(s.tdtg)
-	e4:SetOperation(s.tdop)
+	e4:SetCondition(s.pzcon)
+	e4:SetTarget(s.pztg)
+	e4:SetOperation(s.pzop)
 	c:RegisterEffect(e4)
 end
 --Place Predator Counter
@@ -127,42 +126,25 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
---Add 1 Level 3 "Predaplant" monster to hand
-function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
+--Place on field
+function s.pzcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local rc=c:GetReasonCard()
 	return e:GetHandler():IsLocation(LOCATION_GRAVE) and (r&REASON_FUSION)==REASON_FUSION and rc:IsAttribute(ATTRIBUTE_DARK)
 end
-function s.tdfilter(c)
-	return c:IsSetCard(SET_PREDAPLANT) and c:IsMonster() and c:IsAbleToHand() and c:IsLevel(3) and not c:IsCode(id)
+function s.pzfilter(c)
+	return c:IsSetCard(SET_PREDAPLANT) and c:IsType(TYPE_PENDULUM)
+	and c:IsFaceup() and not c:IsForbidden()
 end
-function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK|LOCATION_GRAVE)
+function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.pzfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil)
+		and Duel.CheckPendulumZones(tp) end
 end
-function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,g)
-	end
-	tc=g:GetFirst()
-	tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-	--banish the added card if not used
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_PHASE+PHASE_END)
-	e2:SetRange(LOCATION_HAND)
-	e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	e2:SetCountLimit(1)
-	e2:SetOperation(s.sdesop)
-	tc:RegisterEffect(e2)
-end
-function s.sdesop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:GetFlagEffect(id)~=0 then
-		Duel.Remove(c,POS_FACEUP,REASON_EFFECT)
+function s.pzop(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.CheckPendulumZones(tp) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local tc=Duel.SelectMatchingCard(tp,s.pzfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,nil):GetFirst()
+	if tc then
+		Duel.MoveToField(tc,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
 end
