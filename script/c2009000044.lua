@@ -4,7 +4,7 @@ function s.initial_effect(c)
 	--Synchro Summon
 	c:EnableReviveLimit()
 	Synchro.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_PLANT),1,1,Synchro.NonTuner(nil),1,99)
-	--Equip monster with Predator Counter and gain ATK
+	--Equip monster with Predator Counter and gain half its ATK
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_EQUIP+CATEGORY_ATKCHANGE)
@@ -27,17 +27,6 @@ function s.initial_effect(c)
 	e2:SetTarget(s.rmtg)
 	e2:SetOperation(s.rmop)
 	c:RegisterEffect(e2)
-	--If destroyed, revive a Predaplant Fusion or Synchro
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCode(EVENT_DESTROYED)
-	e3:SetCountLimit(1,{2,id})
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
-	c:RegisterEffect(e3)
 end
 
 function s.eqcon(e,tp,eg,ep,ev,re,r,rp)
@@ -54,7 +43,7 @@ function s.equipop(c,e,tp,tc)
     local e2=Effect.CreateEffect(c)
     e2:SetType(EFFECT_TYPE_SINGLE)
     e2:SetCode(EFFECT_UPDATE_ATTACK)
-    e2:SetValue(atk)
+    e2:SetValue(atk/2)
     e2:SetReset(RESET_EVENT+RESETS_STANDARD)
     c:RegisterEffect(e2)
 end
@@ -88,23 +77,6 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	if tc and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)~=0 then
 		local atk=tc:GetBaseAttack()
 		if atk<0 then atk=0 end
-		Duel.Damage(1-tp,atk,REASON_EFFECT)
-	end
-end
---Revive Synchro or Fusion Predaplant
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(SET_PREDAPLANT) and (c:IsType(TYPE_FUSION) or c:IsType(TYPE_SYNCHRO))
-		and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		Duel.Damage(1-tp,atk/2,REASON_EFFECT)
 	end
 end
