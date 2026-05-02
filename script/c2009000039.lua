@@ -2,7 +2,6 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	Pendulum.AddProcedure(c,false)
-	c:EnableCounterPermit(COUNTER_PREDATOR,LOCATION_SZONE)
 	--activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -52,12 +51,12 @@ end
 --Place Predator Counter
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,SET_PREDAPLANT) end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
-	local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE|LOCATION_PZONE,0,1,1,nil,COUNTER_PREDATOR,1):GetFirst()
+	local g=Duel.SelectTarget(tp,Card.IsCanAddCounter,tp,LOCATION_MZONE,0,1,1,nil,COUNTER_PREDATOR,1):GetFirst()
 		if g and g:AddCounter(COUNTER_PREDATOR,1) and g:GetLevel()>1 then
 			--Become Level 1
 			local e1=Effect.CreateEffect(c)
