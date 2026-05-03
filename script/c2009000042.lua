@@ -6,16 +6,22 @@ function s.initial_effect(c)
 	--Fusion materials
 	c:EnableReviveLimit()
 	Fusion.AddProcFunRep(c,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_PREDAPLANT),2,true)
-	--Fusion Effect
-    local e1=Effect.CreateEffect(c)
-    e1:SetDescription(aux.Stringid(id,0))
-    e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
-    e1:SetType(EFFECT_TYPE_IGNITION)
-    e1:SetRange(LOCATION_PZONE)
-    e1:SetCountLimit(1,id)
-    e1:SetTarget(s.fustg)
-    e1:SetOperation(s.fusop)
-    c:RegisterEffect(e1)
+	-- Fusion Effect (Pendulum Zone Ignition)
+	local e1=Fusion.CreateSummonEff{
+    	handler=c,
+    	fusionfilter=aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_DARK),
+    	matfilter=s.matfilter,
+    	extratg=function(e,tp,eg,ep,ev,re,r,rp,chk)
+        local c=e:GetHandler()
+        return Group.FromCards(c)
+    	end,
+    	desc=aux.Stringid(id,0)
+	}
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetCode(0)
+	e1:SetRange(LOCATION_PZONE)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	c:RegisterEffect(e1)
     --Search 1 "Predaplant" Pendulum Monster
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -50,33 +56,12 @@ s.counter_place_list={COUNTER_PREDATOR}
 function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(SET_PREDAPLANT) and c:IsType(TYPE_PENDULUM)
 end
-function s.fextra(e,tp,mg)
-	return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(s.filter),tp,0,LOCATION_EXTRA,nil)
+-- Only face-up Pendulum monsters in Extra Deck
+function s.matfilter(e,tp,mg)
+	local c=e:GetHandler()
+    return c:IsType(TYPE_PENDULUM) and c:IsLocation(LOCATION_EXTRA) and c:IsFaceup()
 end
-function s.fusfilter(c,e,tp)
-    return c:IsType(TYPE_FUSION) and c:IsAttribute(ATTRIBUTE_DARK)
-        and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false)
-end
-function s.fustg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then
-        return Duel.IsExistingMatchingCard(s.fusfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
-    end
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-end
-function s.fusop(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    if not c:IsRelateToEffect(e) then return end
-    -- Gather materials: this card + Pendulum Monsters in face-up Extra Deck
-    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_EXTRA,0,nil)
-    g:AddCard(c)
-    -- Select DARK Fusion Monster
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-    local sg=Duel.SelectMatchingCard(tp,s.fusfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
-    local tc=sg:GetFirst()
-    if tc then
-        Duel.FusionSummon(tp,tc,nil,g)
-    end
-end
+
 --
 function s.thfilter(c)
 	return c:IsAbleToHand() and (c:IsFaceup() or not c:IsLocation(LOCATION_EXTRA))
