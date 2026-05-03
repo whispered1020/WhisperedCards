@@ -36,7 +36,6 @@ function s.initial_effect(c)
 	e3a:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
 	e3a:SetCode(EVENT_BATTLE_DESTROYED)
 	e3a:SetCountLimit(1,{id,2})
-	e3a:SetCondition(s.ct1con)
 	e3a:SetTarget(s.cttg)
 	e3a:SetOperation(s.ctop)
 	c:RegisterEffect(e3a)
@@ -44,6 +43,10 @@ function s.initial_effect(c)
 	e3b:SetCode(EVENT_TO_GRAVE)
 	e3b:SetCondition(s.ct2con)
 	c:RegisterEffect(e3b)
+	local e3c=e3a:Clone()
+	e3c:SetCode(EVENT_TO_DECK)
+	e3a:SetCondition(s.ct1con)
+	c:RegisterEffect(e3c)
 end
 
 --Special Summon
