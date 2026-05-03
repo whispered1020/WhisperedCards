@@ -132,8 +132,8 @@ function s.pzcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsLocation(LOCATION_GRAVE) and (r&REASON_FUSION)==REASON_FUSION and rc:IsAttribute(ATTRIBUTE_DARK)
 end
 function s.pzfilter(c)
-	return c:IsSetCard(SET_PREDAPLANT) and c:IsType(TYPE_PENDULUM)
-	and c:IsFaceup() and not c:IsForbidden()
+	return (c:IsSetCard(SET_PREDAPLANT) and c:IsType(TYPE_PENDULUM)) or (c:IsFaceup() and c:IsSetCard(SET_PREDAPLANT) and c:IsType(TYPE_PENDULUM))
+	and not c:IsForbidden()
 end
 function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.pzfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil)
