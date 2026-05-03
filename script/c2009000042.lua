@@ -80,7 +80,7 @@ end
 --
 function s.thfilter(c)
 	return c:IsAbleToHand() and (c:IsFaceup() or not c:IsLocation(LOCATION_EXTRA))
-		and (c:IsSetCard(SET_PREDAPLANT) and c:IsMonster() and c:IsType(TYPE_PENDULUM)))
+		and (c:IsSetCard(SET_PREDAPLANT) and c:IsMonster() and c:IsType(TYPE_PENDULUM))
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK|LOCATION_EXTRA,0,1,nil) end
