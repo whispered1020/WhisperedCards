@@ -71,9 +71,9 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 --synchro material level change
-function s.synlv(e,c,rc)
+function s.synlv(e,c)
     local lv=e:GetHandler():GetLevel()
-    if (rc:IsAttribute(ATTRIBUTE_LIGHT) or rc:IsAttribute(ATTRIBUTE_DARK)) then
+    if (c:IsAttribute(ATTRIBUTE_LIGHT) or c:IsAttribute(ATTRIBUTE_DARK)) then
         return 6,lv
     else
         return lv
