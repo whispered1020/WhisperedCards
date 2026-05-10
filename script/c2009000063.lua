@@ -7,7 +7,7 @@ function s.initial_effect(c)
     --Add 1 "Imprisoned Archfiend" Spell/Trap from your Deck
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TOGRAVE)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -46,13 +46,13 @@ function s.matcheck(g,lc,sumtype,tp)
 end
 --
 function s.rmcostfilter(c)
-	return c:IsSetCard(0x2045) and c:IsAbleToRemoveAsCost()
+	return c:IsSetCard(0x2045) and c:IsAbleToGraveAsCost()
 end
 function s.addcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.rmcostfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectMatchingCard(tp,s.rmcostfilter,tp,LOCATION_DECK,0,1,1,nil)
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	Duel.SendtoGrave(g,REASON_COST)
 end
 function s.addfilter(c,e,tp)
 	return c:IsSetCard(0x2045) and c:IsAbleToHand() and c:IsSpellTrap()
@@ -69,14 +69,14 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
     end
 end
---Return 1 "Imprisoned Archfiend" to Deck then banish 1 card your opponent controls until the end phase
+--Return 1 banished "Imprisoned Archfiend" monster to Deck then banish 1 card your opponent controls until the end phase
 function s.bcostfilter(c)
 	return c:IsSetCard(0x2045) and c:IsAbleToDeckAsCost()
 end
 function s.bcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.bcostfilter),tp,LOCATION_GRAVE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.bcostfilter,tp,LOCATION_REMOVED,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.bcostfilter),tp,LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.bcostfilter,tp,LOCATION_REMOVED,0,1,1,nil)
 	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_COST)
 end
 function s.btg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
