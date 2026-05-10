@@ -37,29 +37,24 @@ function s.initial_effect(c)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
 	c:RegisterEffect(e3)
-    -- destroy 1 card on field when a card is banished
-	local e4=Effect.CreateEffect(c)
-    e4:SetDescription(aux.Stringid(id,2))
-    e4:SetCategory(CATEGORY_DESTROY)
-	e4:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_FIELD)
-	e4:SetCode(EVENT_REMOVE)
-    e4:SetProperty(EFFECT_FLAG_DELAY)
-	e4:SetRange(LOCATION_MZONE)
-    e4:SetCountLimit(1,{id,2})
-	e4:SetCondition(s.dtcon)
-    e4:SetTarget(s.dttg)
-	e4:SetOperation(s.dtop)
-	c:RegisterEffect(e4)
     --Place on Pendulum Zone
-	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,3))
-	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e5:SetProperty(EFFECT_FLAG_DELAY)
-	e5:SetCode(EVENT_REMOVE)
-	e5:SetCountLimit(1,{id,3})
-	e5:SetTarget(s.pztg)
-	e5:SetOperation(s.pzop)
-	c:RegisterEffect(e5)
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,2))
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCode(EVENT_REMOVE)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetTarget(s.pztg)
+	e4:SetOperation(s.pzop)
+	c:RegisterEffect(e4)
+	--If this card is used for the Synchro Summon of a LIGHT/DARK monster, it can be treated as a Level 6 monster
+    local e5=Effect.CreateEffect(c)
+    e5:SetType(EFFECT_TYPE_SINGLE)
+    e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e5:SetCode(EFFECT_SYNCHRO_LEVEL)
+    e5:SetRange(LOCATION_MZONE)
+    e5:SetValue(s.synlv)
+    c:RegisterEffect(e5)
 end
 
 function s.splimit(e,c,sump,sumtype,sumpos,targetp)
@@ -89,6 +84,16 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
+		--Cannot Special Summon from the Extra Deck, except LIGHT and/or Fiend Monsters
+	    local e1=Effect.CreateEffect(c)
+	    e1:SetDescription(aux.Stringid(id,3))
+	    e1:SetType(EFFECT_TYPE_FIELD)
+	    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+	    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	    e1:SetTargetRange(1,0)
+	    e1:SetTarget(function(_,c) return c:IsLocation(LOCATION_EXTRA) and not (c:IsAttribute(ATTRIBUTE_LIGHT) or c:IsRace(RACE_FIEND)) end)
+	    e1:SetReset(RESET_PHASE|PHASE_END)
+	    Duel.RegisterEffect(e1,tp)
     end
 end
 --
@@ -119,23 +124,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 --
-function s.dtcon(e,tp,eg,ep,ev,re,r,rp)
-    return eg and eg:GetCount()>0
-end
-function s.dttg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-    Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,0,0)
-end
-function s.dtop(e,tp,eg,ep,ev,re,r,rp)
-    local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
-    if #g>0 then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-        local dg=g:Select(tp,1,1,nil)
-        Duel.HintSelection(dg)
-        Duel.Destroy(dg,REASON_EFFECT)
-    end
-end
---
 function s.pztg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLocation(tp,LOCATION_SZONE,6) or Duel.CheckLocation(tp,LOCATION_SZONE,7) end
 end
@@ -145,4 +133,13 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToEffect(e) then
 		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
+end
+--synchro material level change
+function s.synlv(e,c,rc)
+    local lv=e:GetHandler():GetLevel()
+    if (rc:IsAttribute(ATTRIBUTE_LIGHT) or rc:IsAttribute(ATTRIBUTE_DARK)) then
+        return 6,lv
+    else
+        return lv
+    end
 end
