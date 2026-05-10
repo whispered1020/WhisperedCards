@@ -15,6 +15,14 @@ function s.initial_effect(c)
 	e1:SetTarget(s.distg)
 	e1:SetOperation(s.disop)
 	c:RegisterEffect(e1)
+    --If this card is used for the Synchro Summon of a LIGHT/DARK monster, it can be treated as a Level 6 monster
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e2:SetCode(EFFECT_SYNCHRO_LEVEL)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetValue(s.synlv)
+    c:RegisterEffect(e2)
 	--Banish this card (from hand or GY); Special Summon or add
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
@@ -60,6 +68,15 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
         e3:SetValue(-500)
         e3:SetReset(RESET_EVENT+RESETS_STANDARD)
         tc:RegisterEffect(e3)
+    end
+end
+--synchro material level change
+function s.synlv(e,c,rc)
+    local lv=e:GetHandler():GetLevel()
+    if (rc:IsAttribute(ATTRIBUTE_LIGHT) or rc:IsAttribute(ATTRIBUTE_DARK)) then
+        return 6,lv
+    else
+        return lv
     end
 end
 --
