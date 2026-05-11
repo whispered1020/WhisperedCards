@@ -28,6 +28,13 @@ function s.initial_effect(c)
 	e3:SetTarget(s.btg)
 	e3:SetOperation(s.bop)
 	c:RegisterEffect(e3)
+	--Can be treated as a Tuner for a Synchro Summon
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_SINGLE)
+	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e4:SetCode(30765615)
+	e4:SetRange(LOCATION_MZONE)
+	c:RegisterEffect(e4)
 end
 
 function s.thfilter(c)
