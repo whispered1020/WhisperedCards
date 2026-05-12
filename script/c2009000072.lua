@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--synchro summon
-	Synchro.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_FIEND),1,1,Synchro.NonTunerEx(Card.IsRace,RACE_FIEND),1,99)
+	Synchro.AddProcedure(c,s.tunerfilter,1,1,Synchro.NonTunerEx(Card.IsRace,RACE_FIEND),1,99)
 	c:EnableReviveLimit()
     --Banish up to 2 card your opponent controls when Special Summoned
 	local e1=Effect.CreateEffect(c)
@@ -43,6 +43,9 @@ function s.initial_effect(c)
     c:RegisterEffect(e3)
 end
 
+function s.tunerfilter(c,scard,sumtype,tp)
+    return c:IsRace(RACE_FIEND) and c:IsAttribute(ATTRIBUTE_LIGHT)
+end
 -- Banish up to 2
 function s.btg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
