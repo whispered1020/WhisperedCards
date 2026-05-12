@@ -21,17 +21,14 @@ function s.initial_effect(c)
 	e2:SetTarget(s.strmtg)
 	e2:SetOperation(s.strmop)
 	c:RegisterEffect(e2)
-    -- Return to Deck 1 card if a card is banished
+    --Recycle when it is banished
 	local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id,1))
-    e3:SetCategory(CATEGORY_TODECK)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-    e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_REMOVE)
-	e3:SetRange(LOCATION_FZONE)
-    e3:SetCountLimit(1,{id,1})
-	e3:SetCondition(s.tdcon)
-    e3:SetTarget(s.tdtg)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetTarget(s.tdtg)
 	e3:SetOperation(s.tdop)
 	c:RegisterEffect(e3)
 end
@@ -85,23 +82,26 @@ function s.strmop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
-function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg and eg:GetCount()>0 and Duel.IsTurnPlayer(1-tp)
-end
-function s.tdfilter(c)
-    return c:IsAbleToDeck()
-        and (not c:IsLocation(LOCATION_REMOVED) or c:IsFaceup()) -- banished must be face-up to be targetable
-end
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return s.tdfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.tdfilter,tp,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,s.tdfilter,tp,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,0,0)
+    if chkc then return chkc:IsControler(tp) and chkc:IsSetCard(0x2045)
+        and (chkc:IsLocation(LOCATION_GRAVE) or chkc:IsLocation(LOCATION_REMOVED)) end
+    if chk==0 then 
+        return Duel.IsExistingTarget(Card.IsSetCard,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,2,nil,0x2045) 
+            and e:GetHandler():IsAbleToHand() 
+    end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+    local g=Duel.SelectTarget(tp,Card.IsSetCard,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,2,2,nil,0x2045)
+    Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,0,0)
+    Duel.SetOperationInfo(0,CATEGORY_TOHAND,e:GetHandler(),1,0,0)
 end
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
-		Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
-	end
+    local c=e:GetHandler()
+    local g=Duel.GetTargetCards(e)
+    if #g==2 then
+        Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+        if g:IsExists(Card.IsLocation,1,nil,LOCATION_DECK+LOCATION_EXTRA) 
+            and c:IsRelateToEffect(e) then
+            Duel.SendtoHand(c,nil,REASON_EFFECT)
+        end
+    end
 end
