@@ -2,7 +2,7 @@
 -- Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	Synchro.AddProcedure(c,aux.FilterSummonCode(2009000067),1,1,Synchro.NonTuner(s.ntfilter),1,99)
+	Synchro.AddProcedure(c,aux.FilterSummonCode(2009000067),1,1,s.ntfilter,1,99)
 	c:EnableReviveLimit()
 	--Banish 1 card on field
 	local e1=Effect.CreateEffect(c)
