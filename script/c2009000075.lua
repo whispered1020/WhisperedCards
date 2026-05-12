@@ -2,7 +2,7 @@
 -- Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	Synchro.AddProcedure(c,aux.FilterSummonCode(2009000067),1,1,Synchro.NonTuner(nil),1,99)
+	Synchro.AddProcedure(c,aux.FilterSummonCode(2009000067),1,1,Synchro.NonTuner(s.ntfilter),1,99)
 	c:EnableReviveLimit()
 	--Banish 1 card on field
 	local e1=Effect.CreateEffect(c)
@@ -28,6 +28,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+function s.ntfilter(c,sc,tp)
+    return c:IsAttribute(ATTRIBUTE_LIGHT) or c:IsAttribute(ATTRIBUTE_DARK)
+end
+--
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return chkc:IsOnField() and chkc:IsAbleToRemove() end
     if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
