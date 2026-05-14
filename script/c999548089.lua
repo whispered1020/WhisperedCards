@@ -23,6 +23,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     if tg then
         Duel.SpecialSummon(tg,0,tp,tp,false,false,POS_FACEUP_ATTACK)
         local half=tg:GetAttack()/2/10
-        Duel.AddCounter(tg,0x1300,half)
+        tg:AddCounter(0x1300,half)
     end
 end
