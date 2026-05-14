@@ -21,8 +21,11 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)<2 then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
     local td=Duel.SelectMatchingCard(tp,Card.IsAbleToDeckAsCost,tp,LOCATION_HAND,0,2,2,nil)
-    if Duel.SendtoDeck(td,tp,SEQ_DECKSHUFFLE,REASON_COST+REASON_DISCARD)~=0 then
-		Duel.BreakEffect()
-        Duel.Draw(tp,1,REASON_EFFECT)
+    if #td>0 then
+    	if Duel.SendtoDeck(td,tp,SEQ_DECKSHUFFLE,REASON_COST+REASON_DISCARD)~=0 then
+    		Duel.ShuffleDeck(tp)
+			Duel.BreakEffect()
+        	Duel.Draw(tp,1,REASON_EFFECT)
+    	end
     end
 end
