@@ -19,6 +19,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local tg=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
     local damC=Duel.GetCounter(tp,LOCATION_MZONE,0,0x1300)
     local ener=Duel.GetOverlayGroup(tp,LOCATION_MZONE,0,tg):Filter(Card.IsSetCard,nil,0x700)
-    if tg then Duel.RemoveCounter(tp,LOCATION_MZONE,0,0x1300,damC) end
+    if tg then Duel.RemoveCounter(tp,LOCATION_MZONE,0,0x1300,damC,REASON_EFFECT) end
     if ener then Duel.SendtoGrave(ener,REASON_EFFECT) end
 end
