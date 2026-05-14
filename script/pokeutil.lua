@@ -512,14 +512,14 @@ function pokeutil.InitWeakRes(c,raceW,modW,countW,raceR,modR,countR)
 			c:RemoveCounter(tp,0x1300,counterev,REASON_ADJUST)
 		end
 		--Defender check
-		if c:GetOverlayGroup():IsExists(Card.IsCode,1,nil,991204180) and re:GetHandler()==pokeutil.GetLastDamageUser() then
+		if c:GetOverlayGroup():IsExists(Card.IsCode,1,nil,999548080) and re:GetHandler()==pokeutil.GetLastDamageUser() then
 			if c:GetCounter(0x1300)==1 and c:GetCounter(0x1300)~=re:GetLabel() then
 				c:RemoveCounter(tp,0x1300,1,REASON_ADJUST) end
 			if c:GetCounter(0x1300)>=2 and c:GetCounter(0x1300)~=re:GetLabel() then
 				c:RemoveCounter(tp,0x1300,2,REASON_ADJUST) end
 		end
 		--PlusPower check
-		if c:GetOverlayGroup():IsExists(Card.IsCode,1,nil,991204084) and re:GetHandler()==pokeutil.GetLastDamageUser() then
+		if re:GetHandler():GetOverlayGroup():IsExists(Card.IsCode,1,nil,999548084) and re:GetHandler()==pokeutil.GetLastDamageUser() then
 			c:AddCounter(0x1300,1)
 		end
 		Duel.RaiseEvent(c, EVENT_BATTLE_END, re, r, rp, ep, newev)
