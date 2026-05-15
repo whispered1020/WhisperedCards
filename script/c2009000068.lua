@@ -51,6 +51,9 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 --
+function s.bfilter(c)
+    return c:IsSetCard(0x2045) and c:IsFaceup() or c:IsLocation(LOCATION_GRAVE)
+end
 function s.thfilter(c)
     return c:IsSetCard(SET_ARCHFIEND) and c:IsAbleToHand()
 end
@@ -60,28 +63,32 @@ end
 function s.tstg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_REMOVED,0,1,nil)
         or (Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp)) end
+        and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp))
+        and Duel.IsExistingMatchingCard(s.bfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil) end
     Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_REMOVED)
     Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE)
 end
 function s.tsop(e,tp,eg,ep,ev,re,r,rp)
     local thg=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_REMOVED,0,nil)
     local spg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE,0,nil,e,tp)
+    local bg=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.bfilter),tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,1,nil)
     local b1=#thg>0
     local b2=#spg>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-    local op=Duel.SelectEffect(tp,
-        {b1,aux.Stringid(id,2)},
-        {b2,aux.Stringid(id,3)})
-    if op==1 then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-        local g=thg:Select(tp,1,1,nil)
-        if #g==0 then return end
-        Duel.SendtoHand(g,nil,REASON_EFFECT)
-        Duel.ConfirmCards(1-tp,g)
-    elseif op==2 then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-        local g=spg:Select(tp,1,1,nil)
-        if #g==0 then return end
-        Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+    if bg and Duel.Remove(bg,POS_FACEUP,REASON_EFFECT) then
+        local op=Duel.SelectEffect(tp,
+            {b1,aux.Stringid(id,2)},
+            {b2,aux.Stringid(id,3)})
+        if op==1 then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+            local g=thg:Select(tp,1,1,nil)
+            if #g==0 then return end
+            Duel.SendtoHand(g,nil,REASON_EFFECT)
+            Duel.ConfirmCards(1-tp,g)
+        elseif op==2 then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+            local g=spg:Select(tp,1,1,nil)
+            if #g==0 then return end
+            Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+        end
     end
 end
