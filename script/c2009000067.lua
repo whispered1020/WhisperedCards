@@ -15,14 +15,14 @@ function s.initial_effect(c)
     e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--Draw 1 card, then banish 1 card
+	--Draw
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_DRAW+CATEGORY_HANDES)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetCondition(function(e) return e:GetHandler():IsPreviousLocation(LOCATION_HAND) end)
+	e2:SetCondition(function(e) return e:GetHandler():IsPreviousLocation(LOCATION_HAND+LOCATION_GRAVE) end)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.drtg)
 	e2:SetOperation(s.drop)
@@ -56,28 +56,28 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.drfilter(c)
-    return c:IsSetCard(0x2045) and c:IsAbleToRemoveAsCost()
+    return c:IsSetCard(SET_ARCHFIEND) and c:IsAbleToRemove()
 end
-function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1)
-		and Duel.IsExistingMatchingCard(s.drfilter,tp,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
+function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    if chkc then return chkc:IsControler(tp)
+        and chkc:IsLocation(LOCATION_HAND+LOCATION_GRAVE)
+        and s.drfilter(chkc) end
+    if chk==0 then return Duel.IsPlayerCanDraw(tp,1)
+        and Duel.IsExistingTarget(s.drfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil) end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+    local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.drfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil)
+    Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+    Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.Draw(tp,1,REASON_EFFECT)>0 then
-		Duel.ShuffleHand(tp)
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.drfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil)
-		if #g>0 then
-			Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
-		end
-	end
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)~=0 then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
 end
 --
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x2045) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(SET_ARCHFIEND) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
