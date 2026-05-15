@@ -64,7 +64,7 @@ function s.btop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectTarget(tp,s.btfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,s.btfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil):GetFirst()
 		if g and Duel.Remove(g,0,REASON_EFFECT|REASON_TEMPORARY)~=0 then
 			g:RegisterFlagEffect(id,RESETS_STANDARD_PHASE_END,0,1)
 			local e1=Effect.CreateEffect(e:GetHandler())
@@ -101,7 +101,7 @@ function s.btg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.bop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.Remove(tc,0,REASON_EFFECT|REASON_TEMPORARY)>0 then
+	if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT|REASON_TEMPORARY)>0 then
 		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 		--Return the monster in the Main Phase 2
 		local e1=Effect.CreateEffect(e:GetHandler())
@@ -116,7 +116,8 @@ function s.bop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.retcon2(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetLabelObject():HasFlagEffect(id)
+	local tc=e:GetLabelObject()
+	return tc and tc:GetFlagEffect(id)>0
 end
 function s.retop2(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
