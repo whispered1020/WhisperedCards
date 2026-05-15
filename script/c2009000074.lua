@@ -24,7 +24,7 @@ function s.initial_effect(c)
     --If this card is used for the Synchro Summon of a LIGHT/DARK monster, it can be treated as a Level 6 monster
     local e3=Effect.CreateEffect(c)
     e3:SetType(EFFECT_TYPE_SINGLE)
-    e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e3:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
     e3:SetCode(EFFECT_SYNCHRO_LEVEL)
     e3:SetRange(LOCATION_MZONE)
     e3:SetValue(s.synlv)
