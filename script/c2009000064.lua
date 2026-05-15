@@ -25,13 +25,17 @@ function s.initial_effect(c)
 	e2:SetTarget(s.addtg)
 	e2:SetOperation(s.addop)
 	c:RegisterEffect(e2)
-	--Ritual Summon 1 LIGHT Fiend Ritual Monster from your hand or banishment
-	local e3=Ritual.CreateProc(c,RITPROC_GREATER,
-		function(rit_c) return rit_c:IsAttribute(ATTRIBUTE_LIGHT) and rit_c:IsRace(RACE_FIEND) end,
-		nil,aux.Stringid(id,1),s.extrafil,nil,nil,nil,LOCATION_HAND|LOCATION_REMOVED)
-	e3:SetType(EFFECT_TYPE_QUICK_O)
-	e3:SetRange(LOCATION_MZONE)
+	--Add 1 "Imprisoned Archfiend" card from your GY or banishment to your hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e3:SetCode(EVENT_TO_DECK)
 	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(s.thcon)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 	--Special Summon itself if it is banished
 	local e4=Effect.CreateEffect(c)
@@ -99,6 +103,27 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	    e1:SetReset(RESET_PHASE|PHASE_END)
 	    Duel.RegisterEffect(e1,tp)
     end
+end
+--
+function s.thcon(e)
+	local c=e:GetHandler()
+	return c:IsLocation(LOCATION_EXTRA) and c:IsFaceup()
+end
+function s.thfilter(c)
+	return c:IsSetCard(0x2045) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and chkc:IsControler(tp) and s.thfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) then
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+	end
 end
 --
 function s.mfilter(c)
