@@ -49,18 +49,14 @@ function s.tunerfilter(c,scard,sumtype,tp)
 	return c:IsRace(RACE_FIEND) and c:IsAttribute(ATTRIBUTE_LIGHT)
 end
 --
-function s.bfilter(c)
-	return c:IsSetCard(0x2045) and c:IsAbleToDeckAsCost()
-end
 function s.btfilter(c)
 	return c:IsMonster() and c:IsAbleToRemove()
 end
 function s.bttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and chkc:IsAbleToRemove() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,nil) 
-		and Duel.IsExistingMatchingCard(s.bfilter,tp,LOCATION_REMOVED,0,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(s.btfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) 
+		and Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectMatchingCard(tp,s.bfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,Card.IsAbleToDeck,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,0,0)
 end
