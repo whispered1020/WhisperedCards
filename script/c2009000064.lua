@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(s.splimit)
 	c:RegisterEffect(e1)
-    --Send 1 level 4 or lower "Imprisoned Archfiend" monster from deck to GY
+    --Send 1 level 4 or lower "Imprisoned Archfiend" monster from deck to GY --- not working
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_TOGRAVE)
