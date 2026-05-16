@@ -13,17 +13,15 @@ function s.initial_effect(c)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(s.splimit)
 	c:RegisterEffect(e1)
-    --Add 1 "Imprisoned Archfiend" monster from your GY
+    --Send 1 level 4 or lower "Imprisoned Archfiend" monster from deck to GY
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetCategory(CATEGORY_TOGRAVE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetRange(LOCATION_PZONE)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,id)
-	e2:SetCost(s.addcost)
-	e2:SetTarget(s.addtg)
-	e2:SetOperation(s.addop)
+	e2:SetTarget(s.tgtg)
+	e2:SetOperation(s.tgop)
 	c:RegisterEffect(e2)
 	--Add 1 "Imprisoned Archfiend" card from your GY or banishment to your hand
 	local e3=Effect.CreateEffect(c)
@@ -66,43 +64,41 @@ function s.splimit(e,c,sump,sumtype,sumpos,targetp)
 	return (sumtype&SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 --
-function s.rmcostfilter(c)
-	return c:IsSetCard(0x2045) and c:IsAbleToRemoveAsCost()
+function s.tgfilter(c)
+	return c:IsSetCard(0x2045) and c:IsAbleToDeck()
 end
-function s.addcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rmcostfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.rmcostfilter,tp,LOCATION_DECK,0,1,1,nil)
-	Duel.Remove(g,POS_FACEUP,REASON_COST)
+function s.dcfilter(c)
+	return c:IsSetCard(0x2045) and c:IsAbleToGrave()
 end
-function s.addfilter(c,e,tp)
-	return c:IsSetCard(0x2045) and c:IsAbleToHand() and c:IsMonster()
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_REMOVED,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=Duel.SelectTarget(tp,s.dcfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,tp,LOCATION_DECK)
 end
-function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
-end
-function s.addop(e,tp,eg,ep,ev,re,r,rp)
+function s.strmop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.addfilter),tp,LOCATION_GRAVE,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,g)
-		--Cannot Special Summon, except LIGHT and/or Fiend Monsters
-	    local e1=Effect.CreateEffect(c)
-	    e1:SetDescription(aux.Stringid(id,4))
-	    e1:SetType(EFFECT_TYPE_FIELD)
-	    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
-	    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	    e1:SetTargetRange(1,0)
-	    e1:SetTarget(function(_,c)
-    		return not c:IsAttribute(ATTRIBUTE_LIGHT)
-       		and not c:IsRace(RACE_FIEND)
-		end)
-	    e1:SetReset(RESET_PHASE|PHASE_END)
-	    Duel.RegisterEffect(e1,tp)
-    end
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) and Duel.SendtoGrave(tc,REASON_EFFECT)>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		local g=Duel.SelectMatchingCard(tp,s.dcfilter,tp,LOCATION_DECK,0,1,1,nil)
+		if #g>0 then
+			Duel.SendtoGrave(g,REASON_EFFECT)
+			--Cannot Special Summon, except LIGHT and/or Fiend Monsters
+	    	local e1=Effect.CreateEffect(c)
+	    	e1:SetDescription(aux.Stringid(id,4))
+	    	e1:SetType(EFFECT_TYPE_FIELD)
+	    	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+	    	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	    	e1:SetTargetRange(1,0)
+	    	e1:SetTarget(function(_,c)
+    			return not c:IsAttribute(ATTRIBUTE_LIGHT)
+       			and not c:IsRace(RACE_FIEND)
+			end)
+	    	e1:SetReset(RESET_PHASE|PHASE_END)
+	    	Duel.RegisterEffect(e1,tp)
+		end
+	end
 end
 --
 function s.thcon(e)
@@ -161,15 +157,25 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_HAND|LOCATION_GRAVE,0,1,1,nil,e,tp)
 	if #g>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP) then
 		tc=g:GetFirst()
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_DISABLE)
-		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
-		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(e:GetHandler())
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_DISABLE_EFFECT)
-		e2:SetReset(RESET_EVENT|RESETS_STANDARD)
-		tc:RegisterEffect(e2)
+		--Disable
+		local e1a=Effect.CreateEffect(e:GetHandler())
+		e1a:SetType(EFFECT_TYPE_SINGLE)
+		e1a:SetCode(EFFECT_DISABLE)
+		e1a:SetReset(RESET_EVENT|RESETS_STANDARD)
+		tc:RegisterEffect(e1a)
+		local e1b=Effect.CreateEffect(e:GetHandler())
+		e1b:SetType(EFFECT_TYPE_SINGLE)
+		e1b:SetCode(EFFECT_DISABLE_EFFECT)
+		e1b:SetReset(RESET_EVENT|RESETS_STANDARD)
+		tc:RegisterEffect(e1b)
+		--Cannot be used as Link Material
+		local e1c=Effect.CreateEffect(e:GetHandler())
+		e1c:SetDescription(3312)
+		e1c:SetType(EFFECT_TYPE_SINGLE)
+		e1c:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE)
+		e1c:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
+		e1c:SetValue(1)
+		e1c:SetReset(RESET_EVENT|RESETS_STANDARD)
+		tc:RegisterEffect(e1c)
 	end
 end
