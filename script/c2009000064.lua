@@ -16,7 +16,7 @@ function s.initial_effect(c)
     --Send 1 level 4 or lower "Imprisoned Archfiend" monster from deck to GY --- not working
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
-	e2:SetCategory(CATEGORY_TOGRAVE)
+	e2:SetCategory(CATEGORY_TOGRAVE+CATEGORY_TODECK)
 	e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetRange(LOCATION_PZONE)
 	e2:SetCountLimit(1,id)
@@ -73,13 +73,14 @@ end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_REMOVED,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,s.dcfilter,tp,LOCATION_REMOVED,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,tp,LOCATION_DECK)
+	local g=Duel.SelectTarget(tp,s.tgfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,tp,0)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function s.strmop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and Duel.SendtoGrave(tc,REASON_EFFECT)>0 then
+	if tc:IsRelateToEffect(e) and Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)>0 and tc:IsLocation(LOCATION_DECK) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 		local g=Duel.SelectMatchingCard(tp,s.dcfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if #g>0 then
