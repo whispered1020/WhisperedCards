@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.chainlimit)
+	e1:SetCost(s.opccost)
 	e1:SetTarget(s.bttg)
 	e1:SetOperation(s.btop)
 	c:RegisterEffect(e1)
@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
+	e2:SetCost(s.opccost)
 	e2:SetCondition(s.bcon)
 	e2:SetTarget(s.btg)
 	e2:SetOperation(s.bop)
@@ -50,8 +51,9 @@ function s.tunerfilter(c,scard,sumtype,tp)
 	return c:IsRace(RACE_FIEND) and c:IsAttribute(ATTRIBUTE_LIGHT)
 end
 --
-function s.chainlimit(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetFlagEffect(id)==0
+function s.opccost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end
+	Duel.RegisterFlagEffect(tp,id,RESET_CHAIN,0,1)
 end
 --
 function s.btfilter(c)
@@ -60,7 +62,6 @@ end
 function s.bttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.IsExistingTarget(s.btfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) 
 		and Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil) end
-	e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToDeck,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
@@ -96,12 +97,11 @@ function s.confilter(c,tp)
 	return c:IsPreviousLocation(LOCATION_REMOVED) and not c:IsPreviousControler(tp)
 end
 function s.bcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.confilter,1,nil,tp) and e:GetHandler():GetFlagEffect(id)==0
+	return eg:IsExists(s.confilter,1,nil,tp)
 end
 function s.btg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(1-tp) and chkc:IsAbleToRemove() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,nil) end
-	e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)

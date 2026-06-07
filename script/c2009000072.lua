@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
     e1:SetCountLimit(1,id)
-    e1:SetCondition(s.chainlimit)
+    e1:SetCost(s.opccost)
 	e1:SetTarget(s.btg)
 	e1:SetOperation(s.bop)
 	c:RegisterEffect(e1)
@@ -26,7 +26,6 @@ function s.initial_effect(c)
     e2:SetCode(EVENT_FREE_CHAIN)
     e2:SetRange(LOCATION_MZONE)
     e2:SetCountLimit(1,{id,1})
-    e2:SetCondition(s.chainlimit)
     e2:SetCost(s.atkcost)
     e2:SetOperation(s.atkop)
     c:RegisterEffect(e2)
@@ -39,6 +38,7 @@ function s.initial_effect(c)
     e3:SetCode(EVENT_REMOVE)
     e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1,{id,2})
+    e3:SetCost(s.opccost)
     e3:SetCondition(s.tdcon)
     e3:SetTarget(s.tdtg)
     e3:SetOperation(s.tdop)
@@ -49,13 +49,13 @@ function s.tunerfilter(c,scard,sumtype,tp)
     return c:IsRace(RACE_FIEND) and c:IsAttribute(ATTRIBUTE_LIGHT)
 end
 --
-function s.chainlimit(e,tp,eg,ep,ev,re,r,rp)
-    return e:GetHandler():GetFlagEffect(id)==0
+function s.opccost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end
+    Duel.RegisterFlagEffect(tp,id,RESET_CHAIN,0,1)
 end
 -- Banish up to 2
 function s.btg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
-    e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
     local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_ONFIELD,nil)
     Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
@@ -71,11 +71,12 @@ function s.atkfilter(c)
     return c:IsSetCard(0x2045) and c:IsAbleToRemoveAsCost()
 end
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter,tp,LOCATION_DECK,0,1,nil) end
+    if chk==0 then return Duel.IsExistingMatchingCard(s.atkfilter,tp,LOCATION_DECK,0,1,nil)
+        and Duel.GetFlagEffect(tp,id)==0 end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-    e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
     local g=Duel.SelectMatchingCard(tp,s.atkfilter,tp,LOCATION_DECK,0,1,1,nil)
     Duel.Remove(g,POS_FACEUP,REASON_COST)
+    Duel.RegisterFlagEffect(tp,id,RESET_CHAIN,0,1)
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
@@ -90,7 +91,7 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
-    return eg and eg:GetCount()>0 and Duel.IsTurnPlayer(1-tp) and e:GetHandler():GetFlagEffect(id)==0
+    return eg and eg:GetCount()>0 and Duel.IsTurnPlayer(1-tp)
 end
 function s.tdfilter(c)
     return c:IsAbleToDeck()
@@ -99,7 +100,6 @@ end
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return s.tdfilter(chkc) end
     if chk==0 then return Duel.IsExistingTarget(s.tdfilter,tp,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,1,nil) end
-    e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
     local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,LOCATION_ONFIELD|LOCATION_GRAVE|LOCATION_REMOVED,1,1,nil)
     Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,0,0)
