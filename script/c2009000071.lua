@@ -108,29 +108,8 @@ function s.btg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.bop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and Duel.Remove(tc,POS_FACEUP,REASON_EFFECT|REASON_TEMPORARY)>0 then
-		tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
-		--Return the monster in the Main Phase 2
-		local e1a=Effect.CreateEffect(e:GetHandler())
-		e1a:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e1a:SetCode(EVENT_PHASE+PHASE_END)
-		e1a:SetReset(RESET_PHASE|PHASE_MAIN2|RESET_OPPO_TURN)
-		e1a:SetLabelObject(tc)
-		e1a:SetCountLimit(1)
-		e1a:SetCondition(s.retcon2)
-		e1a:SetOperation(s.retop2)
-		Duel.RegisterEffect(e1a,tp)
-	end
-end
-function s.retcon2(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	return tc and tc:GetFlagEffect(id)>0 and Duel.IsPhase(PHASE_MAIN2)
-		and tc:IsLocation(LOCATION_REMOVED) and Duel.IsTurnPlayer(1-tp)
-end
-function s.retop2(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	if tc:IsLocation(LOCATION_REMOVED) then
-		Duel.SendtoGrave(tc,REASON_EFFECT)
+	if tc:IsRelateToEffect(e) then
+		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end
 --
