@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_TOGRAVE)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
     e2:SetRange(LOCATION_PZONE)
     e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -71,14 +71,7 @@ function s.tgfilter(c)
 	return c:IsSetCard(0x2045) and c:IsMonster() and c:IsAbleToGrave()
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	if ep==tp or e:GetHandler():IsFaceup() then return false end
-	if re:IsHasCategory(CATEGORY_SEARCH) or re:IsHasCategory(CATEGORY_DRAW) then return true end
-	local ex1,g1,gc1,dp1,loc1=Duel.GetOperationInfo(ev,CATEGORY_TOHAND)
-	local ex2,g2,gc2,dp2,loc2=Duel.GetPossibleOperationInfo(ev,CATEGORY_TOHAND)
-	local g=Group.CreateGroup()
-	if g1 then g:Merge(g1) end
-	if g2 then g:Merge(g2) end
-	return (((loc1 or 0)|(loc2 or 0))&LOCATION_DECK)>0 or (#g>0 and g:IsExists(Card.IsLocation,1,nil,LOCATION_DECK))
+	return rp~=tp and re:IsActiveType(TYPE_MONSTER)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,0,LOCATION_REMOVED,1,nil)
@@ -91,10 +84,8 @@ end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g1=Duel.GetFirstTarget()
-	if #g1==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g2=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g2==0 then return end
 	local sg=g1+g2
 	if Duel.SendtoGrave(sg,REASON_EFFECT)>0 then
 		--Cannot Special Summon, except LIGHT and/or Fiend Monsters
