@@ -1,4 +1,5 @@
 --Supreme King Gate Sorcerer
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 --Pendulum Summon
@@ -29,11 +30,12 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
-	--Cannot be destroyed, PZones
+	--Cannot be targeted, PZones
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e4:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
 	e4:SetRange(LOCATION_PZONE)
+	e4:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	e4:SetTargetRange(LOCATION_PZONE,0)
 	e4:SetTarget(s.indtg)
 	e4:SetValue(aux.tgoval)
@@ -79,6 +81,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
+--
 function s.indtg(e,c)
-	return c:IsType(TYPE_PENDULUM)
+	return c:IsType(TYPE_PENDULUM) and c:IsFaceup()
 end
