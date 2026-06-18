@@ -1,4 +1,5 @@
 --Odd-eyes Trickster Magician
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	Pendulum.AddProcedure(c)
@@ -26,39 +27,26 @@ function s.initial_effect(c)
 	e2:SetTarget(s.lvtg)
 	e2:SetOperation(s.lvop)
 	c:RegisterEffect(e2)
-	--Perform a Fusion Summon
-	local params = {nil,Fusion.OnFieldMat,nil,nil,Fusion.ForcedHandler}
+	--Synchro Summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCondition(s.fcon)
+	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E+TIMING_MAIN_END)
 	e3:SetCountLimit(1,{id,2})
-	e3:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
-	e3:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+	e3:SetCondition(function(_,tp)return Duel.IsTurnPlayer(1-tp)end)
+	e3:SetTarget(s.sctg)
+	e3:SetOperation(s.scop)
 	c:RegisterEffect(e3)
--- Synchro Summon
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
-	e4:SetRange(LOCATION_MZONE)
-	e4:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E+TIMING_MAIN_END)
-	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(function(_,tp)return Duel.IsTurnPlayer(1-tp)end)
-	e4:SetTarget(s.sctg)
-	e4:SetOperation(s.scop)
-	c:RegisterEffect(e4)
 end
 s.listed_series={0x98,0x99}
 s.listed_names={id}
 
 function s.spfilter(c,e,tp,rp)
 	return c:IsRace(RACE_SPELLCASTER) and c:IsAttribute(ATTRIBUTE_DARK) and not c:IsCode(2009000002) 
-	and c:IsType(TYPE_PENDULUM) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	and c:IsType(TYPE_PENDULUM) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsLevel(5)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsDestructable()
@@ -106,10 +94,6 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
 	end
-end
---condition to fusion summon
-function s.fcon(e)
-	return Duel.GetTurnPlayer()==e:GetHandlerPlayer()
 end
 -- Synchro Summon on opponent's turn
 function s.scfilter(c)
