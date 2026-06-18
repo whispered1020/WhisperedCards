@@ -49,7 +49,7 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_EXTRA,0,1,nil) end
     local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_EXTRA,0,nil)
     Duel.SetOperationInfo(0,CATEGORY_DESTROY,e:GetHandler(),1,0,0)
-    Duel.SetOperationInfo(0,CATEGORY_TODECK,g,#g,tp,LOCATION_EXTRA)
+    Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,tp,LOCATION_EXTRA)
 end
 function s.thfilter(c)
     return c:IsFaceup() and c:IsAbleToDeck() and c:IsType(TYPE_PENDULUM)
@@ -57,7 +57,7 @@ end
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-    local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_EXTRA,0,nil)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_EXTRA,0,1,1,nil)
     if #g>0 then
         Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
     end
