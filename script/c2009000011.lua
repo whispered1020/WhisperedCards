@@ -1,4 +1,5 @@
 --Abyss Dread Octsquid
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	--special summon
@@ -40,7 +41,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,c)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
-		Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
   local c=e:GetHandler()
@@ -54,10 +55,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	e1:SetTarget(s.splimit)
 	e1:SetReset(RESET_PHASE+PHASE_END)
 	Duel.RegisterEffect(e1,tp)
+	if c and Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if g and Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP) then
-		Duel.BreakEffect()
 		Duel.SendtoHand(g,tp,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 		end
@@ -71,14 +71,12 @@ function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsLocation(LOCATION_GRAVE) and e:GetHandler():GetReasonCard():IsRace(RACE_AQUA|RACE_SEASERPENT|RACE_FISH) and (r==REASON_SYNCHRO or r==REASON_LINK)
 end
 function s.tgfilter(c)
-	return c:IsRace(RACE_AQUA) and not c:IsCode(2009000011) and c:IsAbleToGrave()
+	return c:IsRace(RACE_AQUA) and c:IsAbleToGrave()
 end
-	--Activation legality
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
-	--Send 1 "Abyssal Dread" card from deck to GY
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
