@@ -1,4 +1,5 @@
 --Abyssal Dread Lucenfish
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	--Special Summon from GY
@@ -18,7 +19,7 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
-	e2:SetCost(aux.selfbanishcost)
+	e2:SetCost(Cost.SelfBanish)
 	e2:SetTarget(s.sptg2)
 	e2:SetOperation(s.spop2)
 	c:RegisterEffect(e2)
