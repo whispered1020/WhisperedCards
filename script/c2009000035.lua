@@ -43,7 +43,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_CARD,0,id)
 	if Duel.NegateEffect(ev) then
 		Duel.BreakEffect()
-		Duel.Remove(c,REASON_EFFECT)
+		Duel.Remove(c,POS_FACEUP,REASON_EFFECT)
 		--Cannot Special Summon, except Aqua, Sea Serpent or Fish monsters
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(aux.Stringid(id,3))
