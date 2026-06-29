@@ -67,12 +67,15 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 -- Special Summon 1 "Penguin" monster face-down from your GY or banishment to your field during the End Phase 
-function s.filter(c,e,tp)
-	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and (c:IsCanBeSpecialSummoned(e,0,tp,false,false) or c:IsAbleToHand())
+function s.thfilter(c)
+	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and c:IsAbleToHand())
+end
+function s.spfilter(c,e,tp)
+	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsLinkMonster()
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local b1=Duel.IsExistingTarget(aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,e,tp)
-	local b2=Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,e,tp)
+	local b1=Duel.IsExistingTarget(aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil)
+	local b2=Duel.IsExistingMatchingCard(aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,e,tp)
 	if chk==0 then return (Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and b2) or b1 end
 	local op=Duel.SelectEffect(tp,
 		{b1,aux.Stringid(id,3)},
@@ -87,7 +90,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==1 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,e,tp)
+		local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
 		if #g>0 then
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g)
@@ -95,7 +98,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	else
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.filter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,e,tp)
+			local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,e,tp)
 			if #g>0 then
 				Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
 				Duel.ConfirmCards(1-tp,g)
