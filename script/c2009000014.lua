@@ -94,7 +94,7 @@ function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 end
 --add to hand and normal Summon
 function s.filter(c)
-	return c:IsRace(RACE_SEASERPENT) and c:IsMonster() and not c:IsCode(2009000014) and c:IsAbleToHand()
+	return c:IsRace(RACE_SEASERPENT) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and s.filter(chkc) end
