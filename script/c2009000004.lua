@@ -68,7 +68,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 -- Special Summon 1 "Penguin" monster face-down from your GY or banishment to your field during the End Phase 
 function s.thfilter(c)
-	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and c:IsAbleToHand())
+	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(SET_PENGUIN) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsLinkMonster()
