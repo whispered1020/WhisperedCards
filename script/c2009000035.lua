@@ -1,4 +1,5 @@
 --Abyssal Dread Neoneel
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	--Negate an opponent's effect activated in response to the activation of your WATER card or effect
