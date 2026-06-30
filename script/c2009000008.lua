@@ -52,10 +52,10 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local cg=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil)
 	Duel.Remove(cg,POS_FACEUP,REASON_COST)
-	e:SetLabelObject(cg:GetFirst():GetCode())
+	e:SetLabel(cg:GetFirst():GetCode())
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local code=e:GetLabelObject()
+	local code=e:GetLabel()
 	if not code then return end
 	if code==2009000036 then
 		Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
@@ -91,7 +91,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local code=e:GetLabelObject()
+	local code=e:GetLabel()
 	if not code then return end
 	if code==2009000036 then
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0
