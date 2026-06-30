@@ -11,8 +11,8 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,id)
-	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e1:SetCost(s.cost)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
@@ -44,89 +44,71 @@ end
 s.listed_series={SET_PENGUIN}
 
 --Copy Penguin's flip effect
-function s.costfilter(c)
-	return c:IsSetCard(SET_PENGUIN) and c:IsCode(2009000036,81306586,41255165,2009000006,93920745) and c:IsAbleToRemoveAsCost() and (c:IsLocation(LOCATION_GRAVE) or c:IsOnField())
+function s.flipfilter(c,e,tp)
+    if not (c:IsSetCard(SET_PENGUIN)
+        and c:IsMonster()
+        and c:IsLevelBelow(4)
+        and c:IsAbleToRemoveAsCost()) then
+        return false
+    end
+    for _,eff in ipairs({c:GetOwnEffects()}) do
+        local typ=eff:GetType()
+        if (typ & EFFECT_TYPE_FLIP)~=0 or eff:GetCode()==EVENT_FLIP then
+            return true
+        end
+    end
+    return false
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.costfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,e:GetHandler()) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local cg=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil)
-	Duel.Remove(cg,POS_FACEUP,REASON_COST)
-	e:SetLabel(cg:GetFirst():GetCode())
+    if chk==0 then
+        return Duel.IsExistingMatchingCard(s.flipfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,nil,e,tp)
+    end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+    local rc=Duel.SelectMatchingCard(tp,s.flipfilter,tp,LOCATION_MZONE|LOCATION_GRAVE,0,1,1,nil,e,tp):GetFirst()
+    Duel.Remove(rc,POS_FACEUP,REASON_COST)
+    local copied=nil
+    for _,eff in ipairs({rc:GetOwnEffects()}) do
+        local typ=eff:GetType()
+        if (typ & EFFECT_TYPE_FLIP)~=0 or eff:GetCode()==EVENT_FLIP then
+            copied=eff
+            break
+        end
+    end
+    e:SetLabelObject(copied)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local code=e:GetLabel()
-	if not code then return end
-	if code==2009000036 then
-		Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
-		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
-	end
-	if code==81306586 then
-		if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and chkc:IsAbleToHand() end
-		if chk==0 then return true end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	end
-	if code==41255165 then
-		if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_SZONE) and chkc:IsAbleToHand() end
-		if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToHand,tp,0,LOCATION_SZONE,1,nil) end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_SZONE,1,2,nil)
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	end
-	if code==2009000006 then
-		if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsAbleToHand() end
-		if chk==0 then return Duel.IsExistingTarget(Card.IsMonster,tp,0,LOCATION_GRAVE,1,nil) end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectTarget(tp,Card.IsMonster,tp,0,LOCATION_GRAVE,1,1,nil)
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	end
-	if code==93920745 then
-		if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsAbleToHand() end
-		if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,1,2,nil)
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	end
+    if chk==0 then
+        return true
+    end
+    local eff=e:GetLabelObject()
+    if not eff then return end
+    e:SetLabel(eff:GetLabel())
+    e:SetLabelObject(eff:GetLabelObject())
+    e:SetProperty(
+        eff:IsHasProperty(EFFECT_FLAG_CARD_TARGET)
+        and EFFECT_FLAG_CARD_TARGET
+        or 0
+    )
+    local tg=eff:GetTarget()
+    if tg then
+        tg(e,tp,eg,ep,ev,re,r,rp,1,chkc)
+    end
+    eff:SetLabel(e:GetLabel())
+    eff:SetLabelObject(e:GetLabelObject())
+    e:SetLabelObject(eff)
+    Duel.ClearOperationInfo(0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local code=e:GetLabel()
-	if not code then return end
-	if code==2009000036 then
-		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,2009000038,0,TYPES_TOKEN,300,600,3,RACE_AQUA,ATTRIBUTE_WATER,POS_FACEUP_ATTACK,tp) then
-			local token=Duel.CreateToken(tp,2009000038)
-			Duel.SpecialSummonStep(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
-			Duel.SpecialSummonComplete()
-		end
-	end
-	if code==81306586 then
-		local tc=Duel.GetFirstTarget()
-		if tc and tc:IsRelateToEffect(e) then
-			Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		end
-	end
-	if code==41255165 then
-		local g=Duel.GetTargetCards(e)
-		if #g>0 then
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
-		end
-	end
-	if code==2009000006 then
-		local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-		if tg then
-			local sg=tg:Filter(Card.IsRelateToEffect,nil,e)
-			Duel.SendtoHand(sg,nil,REASON_EFFECT)
-		end
-	end
-	if code==93920745 then
-		local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-		if tg then
-			local sg=tg:Filter(Card.IsRelateToEffect,nil,e)
-			Duel.SendtoHand(sg,nil,REASON_EFFECT)
-		end
-	end
+    local eff=e:GetLabelObject()
+    if not eff then return end
+    e:SetLabel(eff:GetLabel())
+    e:SetLabelObject(eff:GetLabelObject())
+    local op=eff:GetOperation()
+    if op then
+        op(e,tp,Group.CreateGroup(),PLAYER_NONE,0,e,REASON_EFFECT,PLAYER_NONE)
+    end
+    e:SetLabel(0)
+    e:SetLabelObject(nil)
 end
 --Draw
 function s.drcostfilter(c)
