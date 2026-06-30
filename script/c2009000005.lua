@@ -1,15 +1,21 @@
 --Escort Penguin
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	--If this card is used for the Xyz Summon of a WATER monster, it can be treated as a Level 4 monster
+	--Send Aqua monster to the GY
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e1:SetCode(EFFECT_XYZ_LEVEL)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetValue(s.xyzlv)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOGRAVE)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_CHAINING)
+	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e1:SetRange(LOCATION_GRAVE)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.tgcon)
+	e1:SetTarget(s.tgtg)
+	e1:SetOperation(s.tgop)
 	c:RegisterEffect(e1)
-		--special summon
+	--special summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -23,13 +29,22 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.listed_series={0x5a}
---xyz material level change
-function s.xyzlv(e,c,rc)
-	local lv=e:GetHandler():GetLevel()
-	if rc:IsAttribute(ATTRIBUTE_WATER) then
-		return 4,lv
-	else
-		return lv
+-- Send Aqua monster to the GY
+function s.tgfilter(c)
+	return c:IsMonster() and c:IsAbleToGrave() and c:IsRace(RACE_AQUA)
+end
+function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
+	return re:GetHandler():IsSetCard(SET_PENGUIN) and re:IsMonsterEffect()
+end
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
 end
 -- SpecialSummon

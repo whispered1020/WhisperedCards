@@ -1,4 +1,5 @@
 --Baron Penguin
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	--flip
@@ -10,7 +11,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
---special summon
+	--special summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)

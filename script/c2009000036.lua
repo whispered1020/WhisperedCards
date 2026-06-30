@@ -1,4 +1,5 @@
 --Penguin Apostle
+--Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
 	--Add 1 "Penguin" monster from your Deck to your hand
