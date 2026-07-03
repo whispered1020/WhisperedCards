@@ -88,7 +88,7 @@ function s.pzcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local op=Duel.SelectEffect(tp,
 		{b1,aux.Stringid(id,3)},
 		{b2,aux.Stringid(id,4)})
-	if e:GetLabel()==1 then
+	if op==1 then
 		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,5))
 		local g=Duel.SelectMatchingCard(tp,s.pzfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if #g>0 then
@@ -113,11 +113,11 @@ function s.pzop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local tc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil):GetFirst()
-	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and Duel.SSet(tp,tc)~=0 then
+	if c:IsRelateToEffect(e) and Duel.SSet(tp,tc)~=0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 		local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_ONFIELD,0,1,1,nil,false)
 		if #g>0 then
-			Duel.Destroy(tc,REASON_EFFECT)
+			Duel.Destroy(g,REASON_EFFECT)
 		end
 	end
 end
