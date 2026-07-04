@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	--Send 1 "Metalfoes" Normal Monster from your Deck to the GY
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SEARCH+CATEGORY_TOHAND)
+	e2:SetCategory(CATEGORY_TOGRAVE+CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_HANDES)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_HAND)
 	e2:SetCountLimit(1,id)
@@ -90,10 +90,10 @@ function s.tgthcost(e,tp,eg,ep,ev,re,r,rp,chk)
     e:SetLabel(g:GetFirst():GetCode())
 end
 function s.tgthtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then 
-        return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,e:GetLabel())
-    end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,e:GetLabel())
+    	and Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil,REASON_EFFECT) end
     Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+    Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_HAND)
 end
 function s.tgthop(e,tp,eg,ep,ev,re,r,rp)
 	local code=e:GetLabel()
@@ -102,6 +102,7 @@ function s.tgthop(e,tp,eg,ep,ev,re,r,rp)
     if #sg>0 then
         Duel.SendtoHand(sg,nil,REASON_EFFECT)
         Duel.ConfirmCards(1-tp,sg)
+        Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT,nil)
     end
 end
 --
