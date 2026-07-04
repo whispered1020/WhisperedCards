@@ -37,6 +37,9 @@ function s.spfilter(c,e,tp)
 	and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and c:IsLevelAbove(6)
 	and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial()
 end
+function s.desfilter(c,e)
+    return c:IsOnField() and c~=e:GetHandler()
+end
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	return rp==1-tp and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp)
 		and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
@@ -57,7 +60,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 		--Destroy it during end phase
 		aux.DelayedOperation(tc,PHASE_END,id,e,tp,function(ag) Duel.Destroy(ag,REASON_EFFECT) end,nil,0)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g1=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,0,1,e:GetHandler(),nil)
+		local g1=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_ONFIELD,0,1,1,nil,e)
 		local tc1=g1:GetFirst()
 		if #g1>0 and Duel.Destroy(g1,REASON_EFFECT)~=0 and (tc1:IsSetCard(SET_METALFOES) and tc1:IsType(TYPE_FUSION)) then
 			if Duel.NegateActivation(ev) and re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsRelateToEffect(re) then
