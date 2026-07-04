@@ -26,24 +26,26 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_TODECK+CATEGORY_SET)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_SZONE)
-	e3:SetCountLimit(1,{id,2})
+	e3:SetCountLimit(1,id)
 	e3:SetCondition(s.setcon)
 	e3:SetCost(s.setcost)
 	e3:SetTarget(s.settg)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
-	--to hand
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_TOHAND)
-	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e4:SetCode(EVENT_DESTROYED)
-	e4:SetProperty(EFFECT_FLAG_DELAY)
-	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(s.thcon)
-	e4:SetTarget(s.thtg)
-	e4:SetOperation(s.thop)
-	c:RegisterEffect(e4)
+	-- Fusion Effect
+    local params = {fusfilter=aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_FIRE),matfilter=aux.FALSE,extrafil=s.extramaterial}
+    local e2=Effect.CreateEffect(c)
+    e2:SetDescription(aux.Stringid(id,3))
+    e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+    e2:SetType(EFFECT_TYPE_QUICK_O)
+    e2:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+    e2:SetCode(EVENT_FREE_CHAIN)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCountLimit(1,id)
+    e2:SetCost(s.fuscost)
+    e2:SetTarget(Fusion.SummonEffTG(params))
+    e2:SetOperation(Fusion.SummonEffOP(params))
+    c:RegisterEffect(e2)
 end
 s.listed_series={SET_METALFOES}
 function s.cfilter(c,e,tp)
@@ -89,23 +91,10 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SSet(tp,g:GetFirst())
 	end
 end
---
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsReason(REASON_EFFECT) and c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsPreviousPosition(POS_FACEUP)
-end
-function s.thfilter(c)
-	return c:IsCode(id) and c:IsAbleToHand()
-end
-function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsAbleToHand() end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
-end
-function s.thop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsAbleToHand() then
-		Duel.SendtoHand(c,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,c)
-	end
+--Fusion Summon
+function s.extramaterial(e,tp,mg)
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAbleToGrave),tp,LOCATION_EXTRA|LOCATION_PZONE,0,nil)
+    --local g2=Duel.GetMatchingGroup(Card.IsAbleToGrave,tp,LOCATION_PZONE,0,nil)
+    --g:AddCard(g2)
+    return g
 end
