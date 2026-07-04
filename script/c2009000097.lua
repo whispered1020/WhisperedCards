@@ -22,9 +22,10 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_TODECK)
-	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e3:SetCode(EVENT_CHAINING)
+	e3:SetRange(LOCATION_FZONE)
 	e3:SetCountLimit(1,{id,2})
 	e3:SetCondition(s.scon)
 	e3:SetTarget(s.stg)
@@ -64,20 +65,23 @@ function s.sfilter(c)
 	return c:IsSetCard(SET_METALFOES) and c:IsAbleToDeck() and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup())
 end
 function s.scon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and Duel.IsExistingMatchingCard(s.sfilter,tp,LOCATION_EXTRA|LOCATION_GRAVE,0,1,nil)
+	return rp==1-tp
 end
 function s.stg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-    if chkc then return chkc:IsOnField() end
-    if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToHand,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+    if chkc then return chkc:IsOnField() and chkc:IsFaceup() end
+    if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToDeck,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
     	and Duel.IsExistingMatchingCard(s.sfilter,tp,LOCATION_EXTRA|LOCATION_GRAVE,0,2,nil) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-    local g1=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.sfilter),tp,LOCATION_EXTRA|LOCATION_GRAVE,0,2,2,nil)
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-    local g2=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-    Duel.SetOperationInfo(0,CATEGORY_TODECK,g1,#g1,0,0)
-    Duel.SetOperationInfo(0,CATEGORY_TODECK,g2,1,0,LOCATION_EXTRA|LOCATION_GRAVE)
+    local g=Duel.SelectTarget(tp,Card.IsAbleToDeck,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+    Duel.SetOperationInfo(0,CATEGORY_TODECK,g,1,0,0)
+    Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,2,tp,LOCATION_EXTRA|LOCATION_GRAVE)
 end
 function s.sop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetTargetCards(e)
-	Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+	local tc=Duel.GetFirstTarget()
+	if not tc or not tc:IsRelateToEffect(e) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.sfilter),tp,LOCATION_EXTRA|LOCATION_GRAVE,0,2,2,nil)
+	if #g==2 and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then
+		Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
+	end
 end
