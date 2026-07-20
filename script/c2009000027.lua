@@ -38,7 +38,7 @@ function s.initial_effect(c)
     e3:SetCode(EVENT_TO_HAND)
     e3:SetProperty(EFFECT_FLAG_DELAY)
     e3:SetCountLimit(1,{id,2})
-    e3:SetCondition(s.spcon)
+    e3:SetCondition(function(e) return not e:GetHandler():IsReason(REASON_DRAW) end)
     e3:SetTarget(s.sptg)
     e3:SetOperation(s.spop)
     c:RegisterEffect(e3)
@@ -95,13 +95,11 @@ function s.bounceop(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 --
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-    return not Duel.GetCurrentPhase()==PHASE_DRAW
-end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+    local c=e:GetHandler()
     if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+        and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
