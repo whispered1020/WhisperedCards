@@ -43,7 +43,7 @@ function s.initial_effect(c)
     e3:SetOperation(s.spop)
     c:RegisterEffect(e3)
 end
-s.listed_names={00844056,2009000000}
+s.listed_names={00844056,2009000030}
 s.listed_series={SET_ROSE}
 
 --Effect 1: send itself + Rose card, then search
@@ -51,7 +51,7 @@ function s.tgfilter(c)
     return c:IsSetCard(SET_ROSE) and c:IsAbleToGrave()
 end
 function s.thfilter(c)
-    return (c:IsCode(00844056) or c:IsCode(2009000000)) and c:IsAbleToHand()
+    return (c:IsCode(00844056) or c:IsCode(2009000030)) and c:IsAbleToHand()
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()

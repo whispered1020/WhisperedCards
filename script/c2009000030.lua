@@ -18,32 +18,20 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOKEN+CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e2:SetRange(LOCATION_SZONE)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.tktg)
 	e2:SetOperation(s.tkop)
 	c:RegisterEffect(e2)
-	--recycle
-	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_TODECK)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetCode(EVENT_TO_GRAVE)
-	e3:SetRange(LOCATION_SZONE)
-	e3:SetCountLimit(1,{id,2})
-	e3:SetCondition(s.tdcon)
-	e3:SetTarget(s.tdtg)
-	e3:SetOperation(s.tdop)
-	c:RegisterEffect(e3)
 end
 s.listed_series={SET_ROSE,SET_ROSE_DRAGON}
 
 function s.thfilter(c)
-	return c:IsAbleToHand() and c:IsMonster() and c:IsSetCard(0x123) and c:IsLevelBelow(6)
+	return c:IsAbleToHand() and c:IsMonster() and c:IsSetCard(0x123) and c:IsLevelBelow(6) and not c:IsSetCard(SET_ROSE_DRAGON)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
-	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
+	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=g:Select(tp,1,1,nil)
 		Duel.SendtoHand(sg,nil,REASON_EFFECT)
@@ -84,26 +72,5 @@ function s.tkop(e,tp,eg,ep,ev,re,r,rp)
 		--Summon token
 		local token=Duel.CreateToken(tp,TOKEN_ROSE)
 		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP_ATTACK)
-	end
-end
---
-function s.tdfilter(c)
-	return c:IsSetCard(SET_ROSE) and c:IsAbleToDeck()
-end
-function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE,0,1,nil)
-end
-function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.tdfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.tdfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local g=Duel.SelectTarget(tp,s.tdfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,g,nil,0,0)
-end
-function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if tg then
-		Duel.DisableShuffleCheck()
-		Duel.SendtoDeck(tg,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
 	end
 end
