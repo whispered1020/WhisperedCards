@@ -8,7 +8,7 @@ function s.initial_effect(c)
     e0:SetCode(EFFECT_ADD_RACE)
     e0:SetValue(RACE_DRAGON)
     c:RegisterEffect(e0)
-    --Send itself + 1 "Rose" card from Deck to GY; add Red Arrows or Rose Avatar
+    --add Red Arrows or Rose Avatar
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
     e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_TOGRAVE)
@@ -18,7 +18,7 @@ function s.initial_effect(c)
     e1:SetTarget(s.tgtg)
     e1:SetOperation(s.tgop)
     c:RegisterEffect(e1)
-    --Quick Effect: recycle banished Rose card, bounce 1 card
+    --bounce 1 card
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,1))
     e2:SetCategory(CATEGORY_TODECK+CATEGORY_TOHAND)
@@ -43,7 +43,7 @@ function s.initial_effect(c)
     e3:SetOperation(s.spop)
     c:RegisterEffect(e3)
 end
-s.listed_names={2009000110,2009000111} -- Red Arrows, Rose Avatar
+s.listed_names={00844056,2009000000}
 s.listed_series={SET_ROSE}
 
 --Effect 1: send itself + Rose card, then search
@@ -51,7 +51,7 @@ function s.tgfilter(c)
     return c:IsSetCard(SET_ROSE) and c:IsAbleToGrave()
 end
 function s.thfilter(c)
-    return (c:IsCode(2009000110) or c:IsCode(2009000111)) and c:IsAbleToHand()
+    return (c:IsCode(00844056) or c:IsCode(2009000000)) and c:IsAbleToHand()
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()
@@ -76,14 +76,13 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
         end
     end
 end
-
---Effect 2: recycle banished Rose card, bounce
+--
 function s.bouncetg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return chkc:IsOnField() end
-    if chk==0 then return Duel.IsExistingMatchingCard(aux.NecroValleyFilter(Card.IsSetCard),tp,LOCATION_REMOVED,0,1,nil,SET_ROSE)
+    if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_REMOVED,0,1,nil,SET_ROSE)
         and Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-    local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(Card.IsSetCard),tp,LOCATION_REMOVED,0,1,1,nil,SET_ROSE)
+    local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_REMOVED,0,1,1,nil,SET_ROSE)
     Duel.SendtoDeck(g,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
     local tg=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
@@ -95,8 +94,7 @@ function s.bounceop(e,tp,eg,ep,ev,re,r,rp)
         Duel.SendtoHand(tc,nil,REASON_EFFECT)
     end
 end
-
---Effect 3: Special Summon if added to hand
+--
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
     return not Duel.GetCurrentPhase()==PHASE_DRAW
 end
