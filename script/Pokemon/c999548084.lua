@@ -3,22 +3,17 @@
 Duel.LoadScript("pokeutil.lua")
 local s,id=GetID()
 function s.initial_effect(c)
-	pokeutil.toolAttach(c,nil,nil,nil,s.ppop)
+	pokeutil.toolAttach(c,nil,nil,s.tgop,nil)
 end
 
-function s.ppop(e,tp,eg,ep,ev,re,r,rp,tc)
-    local tc=e:GetHandler():GetOverlayTarget()
-    local eh=Effect.CreateEffect(e:GetHandler())
-		eh:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		eh:SetCode(EVENT_PHASE+PHASE_END)
-        eh:SetReset(RESET_PHASE+PHASE_END)
-		eh:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
-                local c=e:GetHandler()
-                local og=c:GetOverlayGroup():Filter(Card.IsCode,nil,id)
-                if #og>0 then
-                    Duel.SendtoGrave(og,REASON_RULE)
-                end
-            end)
-		tc:RegisterEffect(eh)
+--function to attach the tool only to the active pokemon, using function pokeutil.filterEx()
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if chkc then return chkc:IsLocation(LOCATION_MZONE) end
+	if chk==0 then return e:IsHasType(EFFECT_TYPE_ACTIVATE) and Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,0,1,nil) end
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+			Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
 end
---it is not being sent to the gy, but the effect of discarding is not working, plus the effect itself on the pokeutil
+function s.filter(c)
+    return pokeutil.toolfilt(c) and pokeutil.filterEx(c)
+end
