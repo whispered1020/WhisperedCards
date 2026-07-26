@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_TRIGGER_O+EFFECT_TYPE_SINGLE)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SUMMON_SUCCESS)
-	e2:SetCountLimit(1)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.thcon)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
@@ -30,18 +30,19 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
-	--Cannot be targeted, PZones
+	--Send to GY
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	e4:SetDescription(aux.Stringid(id,2))
+	e4:SetCategory(CATEGORY_TOGRAVE+CATEGORY_DESTROY)
+	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_PZONE)
-	e4:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e4:SetTargetRange(LOCATION_PZONE,0)
-	e4:SetTarget(s.indtg)
-	e4:SetValue(aux.tgoval)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetTarget(s.tgtg)
+	e4:SetOperation(s.tgop)
 	c:RegisterEffect(e4)
 end
 s.listed_series={SET_SUPREME_KING_GATE}
+s.listed_names={CARD_ZARC}
 --summon
 function s.cfilter(c)
 	return c:IsType(TYPE_PENDULUM) and not c:IsForbidden()
@@ -79,7 +80,7 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_HAND)
 end
 function s.thfilter(c)
-	return (c:IsType(TYPE_PENDULUM) and c:IsRace(RACE_SPELLCASTER) and c:IsAttribute(ATTRIBUTE_DARK) and c:IsLevel(4)) or (c:IsCode(11481610,37803970,53208660,74850403)) and c:IsAbleToHand()
+	return c:IsType(TYPE_PENDULUM) and c:IsAbleToHand() and c:IsAttribute(ATTRIBUTE_DARK) and (c:IsLevel(4) and c:IsRace(RACE_SPELLCASTER)) or (c:ListsCode(CARD_ZARC))
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -93,7 +94,23 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 	end
 end
---
-function s.indtg(e,c)
-	return c:IsType(TYPE_PENDULUM) and c:IsFaceup()
+--To GY
+function s.tgfilter(c)
+	return c:ListsCode(CARD_ZARC) and c:IsType(TYPE_PENDULUM) and c:IsAbleToGrave()
+end
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsDestructable()
+		and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,e:GetHandler(),1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and Duel.Destroy(c,REASON_EFFECT)~=0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+		if #g>0 then
+			Duel.SendtoGrave(g,REASON_EFFECT)
+		end
+	end
 end
