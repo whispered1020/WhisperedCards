@@ -80,7 +80,7 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_HAND)
 end
 function s.thfilter(c)
-	return c:IsType(TYPE_PENDULUM) and c:IsAbleToHand() and c:IsAttribute(ATTRIBUTE_DARK) and (c:IsLevel(4) and c:IsRace(RACE_SPELLCASTER)) or (c:ListsCode(CARD_ZARC))
+	return c:IsType(TYPE_PENDULUM) and c:IsAbleToHand() and c:IsAttribute(ATTRIBUTE_DARK) and ((c:IsLevel(4) and c:IsRace(RACE_SPELLCASTER)) or (c:ListsCode(CARD_ZARC)))
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
