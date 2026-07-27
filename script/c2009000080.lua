@@ -29,7 +29,7 @@ function s.initial_effect(c)
     e2:SetTarget(s.dstg)
     e2:SetOperation(s.dsop)
     c:RegisterEffect(e2)
-    --Copy the name and effect of another Pendulum Monster
+    --Copy the name and effect of another Pendulum Monster - notworking
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
@@ -101,20 +101,20 @@ function s.copycost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RegisterFlagEffect(41209827,RESETS_STANDARD_PHASE_END,0,1)
 end
 function s.copyfilter(c)
-	return c:IsMonster() and not c:IsType(TYPE_TOKEN) and c:IsFaceup()
-    and c:IsType(TYPE_PENDULUM) and c:IsSetCard(0xf2)
+	return c:IsType(TYPE_PENDULUM) and c:IsSetCard(0xf2) and c:IsFaceup()
+    and not c:IsType(TYPE_TOKEN) 
+     
 end
-function s.copytg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-	if chkc then return chkc:IsLocation(LOCATION_MZONE|LOCATION_EXTRA) and s.copyfilter(chkc) and chkc~=c end
-	if chk==0 then return Duel.IsExistingTarget(s.copyfilter,tp,LOCATION_MZONE|LOCATION_EXTRA,0,1,c) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,s.copyfilter,tp,LOCATION_MZONE|LOCATION_EXTRA,0,1,1,c)
+function s.copytg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then
+        return Duel.IsExistingMatchingCard(s.copyfilter,tp,LOCATION_MZONE|LOCATION_EXTRA,0,1,e:GetHandler())
+    end
 end
 function s.copyop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if c:IsRelateToEffect(e) and c:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsFaceup() then
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+    local tc=Duel.SelectMatchingCard(tp,s.copyfilter,tp,LOCATION_MZONE|LOCATION_EXTRA,0,1,1,c):GetFirst()
+	if tc and c:IsRelateToEffect(e) and c:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local code=tc:GetOriginalCode()
 		--This card's name becomes the target's name
 		local e1=Effect.CreateEffect(c)
