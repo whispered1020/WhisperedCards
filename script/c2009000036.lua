@@ -30,7 +30,7 @@ s.listed_series={SET_PENGUIN}
 s.listed_names={2009000038,73640163}
 --Add then
 function s.thfilter(c)
-	return c:IsSetCard(SET_PENGUIN) and c:IsAbleToHand() and c:IsMonster()
+	return c:IsSetCard(SET_PENGUIN) and c:IsAbleToHand() and c:IsMonster() and not c:IsCode(id)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
