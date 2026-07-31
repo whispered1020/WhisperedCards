@@ -46,11 +46,14 @@ function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if Duel.SendtoDeck(tc,tp,SEQ_DECKSHUFFLE,REASON_EFFECT)==0 then return end
-	if Duel.Draw(tp,1,REASON_EFFECT)~=0 then
-		Duel.ShuffleHand(tp)
-		Duel.BreakEffect()
-		Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT+REASON_DISCARD)
+	if not tc or not tc:IsRelateToEffect(e) then return end
+	if Duel.SendtoDeck(tc,nil,SEQ_DECKTOP,REASON_EFFECT)~=0 then
+    	Duel.ShuffleDeck(tp)
+    	if Duel.Draw(tp,1,REASON_EFFECT)>0 then
+        	Duel.ShuffleHand(tp)
+        	Duel.BreakEffect()
+        	Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)
+    	end
 	end
 end
 --
