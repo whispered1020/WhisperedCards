@@ -72,7 +72,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT)>0 then
 		--Cannot Special Summon for the rest of this turn, except Plant or Dragon monsters
 		local e0=Effect.CreateEffect(c)
-		e0:SetDescription(aux.Stringid(id,2))
+		e0:SetDescription(aux.Stringid(id,3))
 		e0:SetType(EFFECT_TYPE_FIELD)
 		e0:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
 		e0:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
