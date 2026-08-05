@@ -73,10 +73,11 @@ function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if #g>0 and Duel.SendtoGrave(g,REASON_EFFECT)>0 then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
         local tg=Duel.SelectTarget(tp,s.lvfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-        Duel.SetOperationInfo(0,CATEGORY_LVCHANGE,tg,1,tp,LOCATION_MZONE)
-        Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,tp,0)
-        Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0)
+        Duel.SetTargetCard(tg)
     end
+    Duel.SetOperationInfo(0,CATEGORY_LVCHANGE,tg,1,tp,LOCATION_MZONE)
+    Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,tp,0)
+    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0)
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
