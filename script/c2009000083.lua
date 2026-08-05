@@ -43,8 +43,8 @@ function s.initial_effect(c)
 end
 
 --Special Summon procedure
-function s.rfilter(c,tp)
-	return c:IsRace(RACE_PLANT) and c:IsLevelAbove(6) and c:IsReleasable()
+function s.rfilter(c)
+	return c:IsRace(RACE_PLANT) and c:IsReleasable()
 end
 function s.rescon(sg,e,tp,mg)
 	return Duel.GetMZoneCount(tp,sg)>0 and sg:IsExists(Card.IsSetCard,1,nil,SET_RIKKA)
@@ -52,7 +52,7 @@ end
 function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=e:GetHandlerPlayer()
-	if Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_FZONE,0,1,nil,76869711) and aux.SelectYesNo(tp,aux.Stringid(id,4)) then
+	if Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_FZONE,0,1,nil,76869711) and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
 		local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
 		e:SetLabel(0)
 		return #g>=2 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0)
