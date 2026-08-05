@@ -49,16 +49,25 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=e:GetLabel()
 	local eff=Duel.GetChainInfo(1,CHAININFO_TRIGGERING_EFFECT)
 	-- Set "Rikka" Trap from GY
-	if chk==0 and ct==1 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
-		and Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
+	if ct==1 then 
+		if chk==0 then 
+			return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
+		end
+		Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
 	end
 	--return to hand 1 card your opponent controls
-	if chk==0 and ct==2 then return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
-		and Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,1-tp,LOCATION_ONFIELD)
+	if ct==2 then
+		if chk==0 then
+			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
+		end
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,1-tp,LOCATION_ONFIELD)
 	end
 	--Negate Chain 1 effect
-	if chk==0 and ct>=3 then return Duel.IsChainDisablable(1)
-		and Duel.SetOperationInfo(0,CATEGORY_DISABLE,eff:GetHandler(),1,0,0)
+	if ct>=3 then
+		if chk==0 then
+			return Duel.IsChainDisablable(1)
+		end
+		Duel.SetOperationInfo(0,CATEGORY_DISABLE,eff:GetHandler(),1,0,0)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
@@ -95,10 +104,10 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 -- If a Plant monster(s) you control is Tributed: Attach 1 of those monsters
 function s.attfilter(c,tp)
-	return c:IsRace(RACE_PLANT) and c:IsPreviousControler(tp)
+	return c:GetPreviousRaceOnField()&RACE_PLANT==RACE_PLANT and c:IsPreviousControler(tp)
 end
 function s.attachfilter(c,tp)
-	return c:IsRace(RACE_PLANT)
+	return c:GetPreviousRaceOnField()&RACE_PLANT==RACE_PLANT
 		and c:IsPreviousControler(tp)
 		and c:IsCanBeXyzMaterial()
 end

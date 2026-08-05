@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tbtg)
 	e2:SetOperation(s.tbop)
 	c:RegisterEffect(e2)
-	--disable Spell/Trap (not triggering)
+	--disable Spell/Trap
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_DISABLE)
