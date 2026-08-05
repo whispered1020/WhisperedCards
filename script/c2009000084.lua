@@ -55,7 +55,7 @@ end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsReason(REASON_COST) and re:IsActivated() and re:IsActiveType(TYPE_XYZ)
-		and re:IsRace(RACE_PLANT) and c:IsPreviousLocation(LOCATION_OVERLAY)
+		and c:IsPreviousLocation(LOCATION_OVERLAY)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and chkc:IsControler(tp) and s.spfilter(chkc,e,tp) end
