@@ -8,10 +8,10 @@ function s.initial_effect(c)
 	--detach 1 or more materials and apply the appropriate effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_DISABLE)
+	e1:SetCategory(CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
     e1:SetCode(EVENT_FREE_CHAIN)
-    e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_CARD_TARGET)
+    e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetCost(s.cost)
@@ -29,18 +29,26 @@ function s.initial_effect(c)
 	e2:SetTarget(s.attachtg)
 	e2:SetOperation(s.attachop)
 	c:RegisterEffect(e2)
+	--Negate chain 1 effect
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetCategory(CATEGORY_DISABLE)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetCode(EVENT_CHAINING)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetCondition(s.discon)
+	e3:SetCost(s.discost)
+	e3:SetTarget(s.distg)
+	e3:SetOperation(s.disop)
+	c:RegisterEffect(e3)
 end
 
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	if Duel.GetCurrentChain()==0 then 
-		local ct=c:RemoveOverlayCard(tp,1,2,REASON_COST)
-		e:SetLabel(ct)
-	elseif Duel.GetCurrentChain()>=1 then
-		local ct=c:RemoveOverlayCard(tp,1,c:GetOverlayCount(),REASON_COST)
-		e:SetLabel(ct)
-	end
+	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end 
+	local ct=c:RemoveOverlayCard(tp,1,2,REASON_COST)
+	e:SetLabel(ct)
 end
 function s.setfilter(c)
     return c:IsSetCard(0x141) and c:IsTrap() and c:IsSSetable()
@@ -60,14 +68,6 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
 		end
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,1-tp,LOCATION_ONFIELD)
-	end
-	--Negate Chain 1 effect
-	if ct>=3 then
-		local eff=Duel.GetChainInfo(1,CHAININFO_TRIGGERING_EFFECT)
-		if chk==0 then
-			return Duel.IsChainDisablable(1)
-		end
-		Duel.SetOperationInfo(0,CATEGORY_DISABLE,eff:GetHandler(),1,0,0)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
@@ -97,10 +97,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 		end
 	end
-	--Negate Chain 1 effect
-	if ct>=3 then
-		Duel.NegateEffect(1)
-	end
 end
 -- If a Plant monster(s) you control is Tributed: Attach 1 of those monsters
 function s.attfilter(c,tp)
@@ -129,4 +125,26 @@ function s.attachop(e,tp,eg,ep,ev,re,r,rp)
 	if tc then
 		Duel.Overlay(c,Group.FromCards(tc))
 	end
+end
+--negate chain 1
+function s.discon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentChain()>=1 and Duel.IsChainDisablable(0)
+end
+
+function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		return e:GetHandler():CheckRemoveOverlayCard(tp,3,REASON_COST)
+	end
+	e:GetHandler():RemoveOverlayCard(tp,3,3,REASON_COST)
+end
+
+function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	local eff=Duel.GetChainInfo(1,CHAININFO_TRIGGERING_EFFECT)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eff:GetHandler(),1,0,0)
+end
+
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(0)
+	Duel.SetChainLimitTillChainEnd(aux.FALSE)
 end
