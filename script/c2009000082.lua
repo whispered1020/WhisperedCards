@@ -34,10 +34,10 @@ end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end
-	if Duel.GetCurrentChain()==1 then 
+	if Duel.GetCurrentChain()==0 then 
 		local ct=c:RemoveOverlayCard(tp,1,2,REASON_COST)
 		e:SetLabel(ct)
-	elseif Duel.GetCurrentChain()>=2 then
+	elseif Duel.GetCurrentChain()>=1 then
 		local ct=c:RemoveOverlayCard(tp,1,c:GetOverlayCount(),REASON_COST)
 		e:SetLabel(ct)
 	end
@@ -47,7 +47,6 @@ function s.setfilter(c)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=e:GetLabel()
-	local eff=Duel.GetChainInfo(1,CHAININFO_TRIGGERING_EFFECT)
 	-- Set "Rikka" Trap from GY
 	if ct==1 then 
 		if chk==0 then 
@@ -64,6 +63,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 	--Negate Chain 1 effect
 	if ct>=3 then
+		local eff=Duel.GetChainInfo(1,CHAININFO_TRIGGERING_EFFECT)
 		if chk==0 then
 			return Duel.IsChainDisablable(1)
 		end
