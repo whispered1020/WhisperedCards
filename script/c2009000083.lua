@@ -115,7 +115,7 @@ function s.tbop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.negconfilter(c,tp)
-	return c:IsPreviousRace(RACE_PLANT) and c:IsPreviousLocation(LOCATION_MZONE)
+	return c:IsRace(RACE_PLANT) and c:IsPreviousLocation(LOCATION_MZONE)
 		and c:IsPreviousControler(tp)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
