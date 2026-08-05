@@ -48,39 +48,37 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 
+--Special Summon procedure
 function s.rfilter(c,tp)
-    return c:IsRace(RACE_PLANT) and c:IsLevelAbove(6) and c:IsRikkaReleasable(tp)
+	return c:IsRace(RACE_PLANT) and c:IsLevelAbove(6) and c:IsReleasable()
 end
 function s.spfilter(c,tp)
-    return c:IsSetCard(0x141) and c:IsRace(RACE_PLANT) and c:IsRikkaReleasable(tp)
+	return c:IsSetCard(0x141) and c:IsRace(RACE_PLANT) and c:IsReleasable()
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-    if c==nil then return true end
-    local tp=e:GetHandlerPlayer()
-    local rg=Duel.GetReleaseGroup(tp)
-    -- Must be able to select 1 Level 6 Plant and 1 "Rikka" monster
-    return rg:IsExists(s.spfilter,1,nil,tp) and rg:FilterCount(s.rfilter,nil,tp)>=1
+function s.spcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=-2 then return false end
+	local rg=Duel.GetReleaseGroup(tp)
+	return rg:IsExists(s.spfilter,1,nil,tp)
+		and rg:IsExists(s.rfilter,1,nil,tp)
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-        and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-    local rg=Duel.GetReleaseGroup(tp)
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-    local g1=rg:FilterSelect(tp,s.spfilter,1,1,nil,tp)
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-    local g2=rg:FilterSelect(tp,s.rfilter,1,1,g1:GetFirst(),tp)
-    g1:Merge(g2)
-    e:SetLabelObject(g1)
-    Duel.SetOperationInfo(0,CATEGORY_RELEASE,g1,#g1,0,0)
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
+	local rg=Duel.GetReleaseGroup(tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local g1=rg:FilterSelect(tp,s.spfilter,1,1,nil,tp)
+	rg:Sub(g1)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+	local g2=rg:FilterSelect(tp,s.rfilter,1,1,nil,tp)
+	g1:Merge(g2)
+	e:SetLabelObject(g1)
+	return true
 end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    local g=e:GetLabelObject()
-    if Duel.Release(g,REASON_EFFECT)~=0 and c:IsRelateToEffect(e) then
-        Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-    end
+function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
+	local g=e:GetLabelObject()
+	if g then
+		Duel.Release(g,REASON_COST)
+	end
 end
 --
 function s.tbcon(e,tp,eg,ep,ev,re,r,rp)
