@@ -115,7 +115,8 @@ function s.tbop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.negconfilter(c,tp)
-	return c:IsPreviousRaceOnField(RACE_PLANT) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp)
+	return c:IsPreviousRace(RACE_PLANT) and c:IsPreviousLocation(LOCATION_MZONE)
+		and c:IsPreviousControler(tp)
 end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.negconfilter,1,nil,tp)
@@ -125,6 +126,7 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local dg=Duel.GetMatchingGroup(Card.IsNegatable,tp,0,LOCATION_SZONE,nil)
 	if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
