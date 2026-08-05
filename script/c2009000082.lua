@@ -1,4 +1,4 @@
---Dasiphora the Wise Rikka Queen
+--Dasiphora the Wise Rikka Queen (not working)
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
