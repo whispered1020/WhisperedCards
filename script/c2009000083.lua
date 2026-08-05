@@ -3,25 +3,19 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	--cannot special summon
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e1:SetValue(aux.FALSE)
-	c:RegisterEffect(e1)
+	c:AddMustBeSpecialSummoned()
     --special summon itself
-	local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,0))
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_SPSUMMON_PROC)
-	e2:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e2:SetRange(LOCATION_HAND)
-    e2:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
-	e2:SetCondition(s.spcon)
-	e2:SetTarget(s.sptg)
-	e2:SetOperation(s.spop)
-	c:RegisterEffect(e2)
+	local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(id,0))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetRange(LOCATION_HAND)
+    e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1)
     --Opponent tributes own monsters
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
@@ -52,32 +46,45 @@ end
 function s.rfilter(c,tp)
 	return c:IsRace(RACE_PLANT) and c:IsLevelAbove(6) and c:IsReleasable()
 end
-function s.spfilter(c,tp)
-	return c:IsSetCard(0x141) and c:IsRace(RACE_PLANT) and c:IsReleasable()
+function s.rescon(sg,e,tp,mg)
+	return Duel.GetMZoneCount(tp,sg)>0 and sg:IsExists(Card.IsSetCard,1,nil,SET_RIKKA)
 end
 function s.spcon(e,c)
 	if c==nil then return true end
-	local tp=c:GetControler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=-2 then return false end
-	local rg=Duel.GetReleaseGroup(tp)
-	return rg:IsExists(s.spfilter,1,nil,tp)
-		and rg:IsExists(s.rfilter,1,nil,tp)
+	local tp=e:GetHandlerPlayer()
+	if Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_FZONE,0,1,nil,76869711) and aux.SelectYesNo(tp,aux.Stringid(id,4)) then
+		local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
+		e:SetLabel(0)
+		return #g>=2 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0)
+	else
+		local g=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_MZONE,0,nil)
+		e:SetLabel(1)
+		return #g>=2 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0)
+	end
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
-	local rg=Duel.GetReleaseGroup(tp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local g1=rg:FilterSelect(tp,s.spfilter,1,1,nil,tp)
-	rg:Sub(g1)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	local g2=rg:FilterSelect(tp,s.rfilter,1,1,nil,tp)
-	g1:Merge(g2)
-	e:SetLabelObject(g1)
-	return true
+	local tg=e:GetLabel()
+	if tg==0 then
+		local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
+		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_RELEASE,nil,nil,true)
+		if sg and #sg>0 then
+			e:SetLabelObject(sg)
+			return true
+		end
+	else
+		local g=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_MZONE,0,nil)
+		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_RELEASE,nil,nil,true)
+		if sg and #sg>0 then
+			e:SetLabelObject(sg)
+			return true
+		end
+	end
+	return false
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local g=e:GetLabelObject()
-	if g then
-		Duel.Release(g,REASON_COST)
+	local sg=e:GetLabelObject()
+	if sg and #sg==2 then
+		Duel.Release(sg,REASON_COST)
 	end
 end
 --
