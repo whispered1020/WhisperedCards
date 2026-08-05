@@ -52,10 +52,12 @@ end
 function s.spcon(e,c)
 	if c==nil then return true end
 	local tp=e:GetHandlerPlayer()
-	if Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_FZONE,0,1,nil,76869711) and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
-		local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
+	if Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_FZONE,0,1,nil,76869711) then
+		local g1=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_MZONE,0,nil)
+		local g2=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
+		local tg=g1+g2
 		e:SetLabel(0)
-		return #g>=2 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0)
+		return #tg>=2 and aux.SelectUnselectGroup(tg,e,tp,2,2,s.rescon,0)
 	else
 		local g=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_MZONE,0,nil)
 		e:SetLabel(1)
@@ -65,8 +67,10 @@ end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
 	local tg=e:GetLabel()
 	if tg==0 then
-		local g=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
-		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_RELEASE,nil,nil,true)
+		local g1=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_MZONE,0,nil)
+		local g2=Duel.GetMatchingGroup(Card.IsReleasable,tp,0,LOCATION_MZONE,nil)
+		local rc=g1+g2
+		local sg=aux.SelectUnselectGroup(rc,e,tp,2,2,s.rescon,1,tp,HINTMSG_RELEASE,nil,nil,true)
 		if sg and #sg>0 then
 			e:SetLabelObject(sg)
 			return true
