@@ -61,8 +61,9 @@ function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local ct=e:GetChainData().cost_choice
 	-- Add 1 "Rikka" monster from GY
-	if e:GetChainData().cost_choice==1 then 
+	if ct==1 then 
 		if chk==0 then 
 			return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
 		end
