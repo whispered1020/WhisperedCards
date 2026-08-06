@@ -14,13 +14,16 @@ function s.initial_effect(c)
     e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
-	e1:SetCost(s.cost)
+	e1:SetCost(Cost.Choice(
+		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(LOCATION_GRAVE)},
+		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(LOCATION_ONFIELD)}
+	))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
 	--attach tributed monster to itself
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetDescription(aux.Stringid(id,3))
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_RELEASE)
 	e2:SetRange(LOCATION_MZONE)
@@ -31,7 +34,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--Negate chain 1 effect
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetDescription(aux.Stringid(id,4))
 	e3:SetCategory(CATEGORY_DISABLE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
@@ -44,56 +47,51 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:CheckRemoveOverlayCard(tp,1,REASON_COST) end 
-	local ct=c:RemoveOverlayCard(tp,1,2,REASON_COST)
-	e:SetLabel(ct)
+function s.thcheck(loc)
+	return function(e,tp)
+		return Duel.IsExistingMatchingCard(s.thfilter,tp,loc,0,1,nil)
+	end
 end
-function s.setfilter(c)
-    return c:IsSetCard(0x141) and c:IsTrap() and c:IsSSetable()
+function s.th2check(loc)
+	return function(e,tp)
+		return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,loc,1,nil)
+	end
+end
+function s.thfilter(c)
+    return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local ct=e:GetLabel()
-	-- Set "Rikka" Trap from GY
-	if ct==1 then 
+	-- Add 1 "Rikka" monster from GY
+	if e:GetChainData().cost_choice==1 then 
 		if chk==0 then 
 			return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil)
 		end
-		Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
-	end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
+	else
 	--return to hand 1 card your opponent controls
-	if ct==2 then
 		if chk==0 then
 			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
 		end
-		Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,1-tp,LOCATION_ONFIELD)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,1-tp,LOCATION_ONFIELD)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetLabel()
-	-- Set "Rikka" Trap from GY
+	local ct=e:GetChainData().cost_choice
+	-- Add 1 "Rikka" monster from GY
 	if ct==1 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-		local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-		if #g>0 then
-			Duel.SSet(tp,g)
+		local g=Duel.GetFirstTarget()
+		if g then
+			Duel.SendtoHand(g,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g)
-			-- Allow activation this turn
-        	local tc=g:GetFirst()
-        	local e1=Effect.CreateEffect(e:GetHandler())
-        	e1:SetType(EFFECT_TYPE_SINGLE)
-        	e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
-        	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-        	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-        	tc:RegisterEffect(e1)
 		end
-	end
+	else
 	--return to hand 1 card your opponent controls
-	if ct==2 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g=Duel.SelectMatchingCard(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
-		if #g>0 then
+		local g=Duel.GetFirstTarget()
+		if g then
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 		end
 	end
