@@ -86,7 +86,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetHandler():GetFlagEffectLabel(id)
+	local ct=e:GetLabel()
 	-- Add 1 "Rikka" monster from GY
 	if ct==1 then
 		local g=Duel.GetFirstTarget()
