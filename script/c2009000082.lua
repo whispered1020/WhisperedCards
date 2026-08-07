@@ -14,10 +14,7 @@ function s.initial_effect(c)
     e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
-	e1:SetCost(Cost.Choice(
-		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(c)},
-		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(c)}
-	))
+	e1:SetCost(s.cost)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
 	c:RegisterEffect(e1)
@@ -47,24 +44,24 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.thcheck(c)
-	return c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1,1)
-		and function(e,tp)
-			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
-		end
-end
-function s.th2check(c)
-	return c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1,2)
-		and function(e,tp)
-			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
-		end
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local ct=e:GetHandler():GetOverlayCount()
+	if chk==0 then return ct>0 end
+	local op=0
+	if ct==1 then
+		op=1
+	elseif ct>=2 then
+		op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))+1
+	end
+	e:GetHandler():RemoveOverlayCard(tp,op,op,REASON_COST)
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,op)
 end
 function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local ct=e:GetHandler():GetFlagEffectLabel(id)
-	if ct==1 then  
+	if ct==0 then  
 		-- Add 1 "Rikka" monster from GY
 		if chk==0 then
 			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
@@ -72,7 +69,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
-	elseif ct==2 then 
+	elseif ct==1 then 
 		--return to hand 1 card your opponent controls
 		if chk==0 then
 			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
