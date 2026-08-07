@@ -15,8 +15,8 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetCost(Cost.Choice(
-		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(e:GetHandler())},
-		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(e:GetHandler())}
+		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(c)},
+		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(c)}
 	))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
