@@ -52,12 +52,12 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
         and Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
     if chk==0 then return b1 or b2 end
     local op
-    if b1 and not b2 then
-        op=1
-    elseif b2 and not b1 then
-        op=2
-    else
+    if b1 and b2 then
         op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))+1
+    elseif b1 and not b2 then
+        op=1
+	elseif not b1 and b2 then
+		op=2
     end
     c:RemoveOverlayCard(tp,op,op,REASON_COST)
     e:SetLabel(op)
