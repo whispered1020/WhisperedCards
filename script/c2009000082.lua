@@ -1,4 +1,4 @@
---Dasiphora the Wise Rikka Queen (not working)
+--Dasiphora the Wise Rikka Queen
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
@@ -131,7 +131,7 @@ function s.attachop(e,tp,eg,ep,ev,re,r,rp)
 end
 --negate chain 1
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentChain()>1 and Duel.IsChainDisablable(1)
+	return Duel.GetCurrentChain(true)>1 and Duel.IsChainDisablable(1)
 end
 
 function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
