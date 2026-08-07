@@ -45,23 +45,25 @@ function s.initial_effect(c)
 end
 
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ct=e:GetHandler():GetOverlayCount()
+	local c=e:GetHandler()
+	local ct=c:GetOverlayCount()
 	if chk==0 then return ct>0 end
-	local op=0
+	local op=1
 	if ct==1 then
-		op=1
+		c:RemoveOverlayCard(tp,1,1,REASON_COST)
+		e:SetLabel(op)
 	elseif ct>=2 then
-		op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))+1
+		op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+		c:RemoveOverlayCard(tp,op,op,REASON_COST)
+		e:SetLabel(op)
 	end
-	e:GetHandler():RemoveOverlayCard(tp,op,op,REASON_COST)
-	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,op)
 end
 function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local ct=e:GetHandler():GetFlagEffectLabel(id)
-	if ct==0 then  
+	local ct=e:GetLabel()
+	if ct==1 then  
 		-- Add 1 "Rikka" monster from GY
 		if chk==0 then
 			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
@@ -69,7 +71,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
-	elseif ct==1 then 
+	elseif ct==2 then 
 		--return to hand 1 card your opponent controls
 		if chk==0 then
 			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
