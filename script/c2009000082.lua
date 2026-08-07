@@ -15,8 +15,8 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetCost(Cost.Choice(
-		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(LOCATION_GRAVE)},
-		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(LOCATION_ONFIELD)}
+		{Cost.DetachFromSelf(1),aux.Stringid(id,1),s.thcheck(e:GetHandler())},
+		{Cost.DetachFromSelf(2),aux.Stringid(id,2),s.th2check(e:GetHandler())}
 	))
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.operation)
@@ -47,45 +47,51 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-function s.thcheck(loc)
-	return function(e,tp)
-		return Duel.IsExistingMatchingCard(s.thfilter,tp,loc,0,1,nil)
-	end
+function s.thcheck(c)
+	return c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
+		and function(e,tp)
+			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
+		end
 end
-function s.th2check(loc)
-	return function(e,tp)
-		return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,loc,1,nil)
-	end
+function s.th2check(c)
+	return c:RegisterFlagEffect(id+1,RESET_PHASE+PHASE_END,0,1)
+		and function(e,tp)
+			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
+		end
 end
 function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then  
-		local ct=e:GetChainData().cost_choice
+	local ct=e:GetHandler():GetFlagEffectLabel()
+	if ct==id then  
 		-- Add 1 "Rikka" monster from GY
-		if ct==1 and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-			local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
-			Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
-		elseif ct==2 and Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil) then
-		--return to hand 1 card your opponent controls
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-			local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
-			Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,1-tp,LOCATION_ONFIELD)
+		if chk==0 then
+			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
 		end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
+	elseif ct==id+1 then 
+		--return to hand 1 card your opponent controls
+		if chk==0 then
+			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
+		end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
+		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,1-tp,LOCATION_ONFIELD)
 	end
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local ct=e:GetChainData().cost_choice
+	local ct=e:GetHandler():GetFlagEffectLabel()
 	-- Add 1 "Rikka" monster from GY
-	if ct==1 then
+	if ct==id then
 		local g=Duel.GetFirstTarget()
 		if g then
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g)
 		end
-	else
+	elseif ct==id+1 then
 	--return to hand 1 card your opponent controls
 		local g=Duel.GetFirstTarget()
 		if g then
