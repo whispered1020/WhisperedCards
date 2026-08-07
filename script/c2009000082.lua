@@ -45,18 +45,22 @@ function s.initial_effect(c)
 end
 
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local ct=c:GetOverlayCount()
-	if chk==0 then return ct>0 end
-	local op=1
-	if ct==1 then
-		c:RemoveOverlayCard(tp,1,1,REASON_COST)
-		e:SetLabel(op)
-	elseif ct>=2 then
-		op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
-		c:RemoveOverlayCard(tp,op,op,REASON_COST)
-		e:SetLabel(op)
-	end
+    local c=e:GetHandler()
+    local b1=c:CheckRemoveOverlayCard(tp,1,REASON_COST)
+        and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
+    local b2=c:CheckRemoveOverlayCard(tp,2,REASON_COST)
+        and Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
+    if chk==0 then return b1 or b2 end
+    local op
+    if b1 and not b2 then
+        op=1
+    elseif b2 and not b1 then
+        op=2
+    else
+        op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))+1
+    end
+    c:RemoveOverlayCard(tp,op,op,REASON_COST)
+    e:SetLabel(op)
 end
 function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
