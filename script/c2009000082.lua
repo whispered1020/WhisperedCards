@@ -66,20 +66,17 @@ function s.thfilter(c)
     return c:IsSetCard(0x141) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then
+			return true 
+	end
 	local ct=e:GetLabel()
 	if ct==1 then  
-		-- Add 1 "Rikka" monster from GY
-		if chk==0 then
-			return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)
-		end
+		--Add 1 "Rikka" monster from GY
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g=Duel.SelectTarget(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE,0,1,1,nil)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,tp,LOCATION_GRAVE)
 	elseif ct==2 then 
 		--return to hand 1 card your opponent controls
-		if chk==0 then
-			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,nil)
-		end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 		local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,0,LOCATION_ONFIELD,1,1,nil)
 		Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,1-tp,LOCATION_ONFIELD)
@@ -87,18 +84,19 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local ct=e:GetLabel()
-	-- Add 1 "Rikka" monster from GY
 	if ct==1 then
-		local g=Duel.GetFirstTarget()
-		if g then
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,g)
+		-- Add 1 "Rikka" monster from GY
+		local tc=Duel.GetFirstTarget()
+		if tc and tc:IsRelateToEffect(e) then
+			Duel.SendtoHand(tc,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,tc)
 		end
 	elseif ct==2 then
-	--return to hand 1 card your opponent controls
-		local g=Duel.GetFirstTarget()
-		if g then
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
+		--return to hand 1 card your opponent controls
+		local tc=Duel.GetFirstTarget()
+		if tc and tc:IsRelateToEffect(e) then
+			Duel.SendtoHand(tc,nil,REASON_EFFECT)
+			Duel.ConfirmCards(1-tp,tc)
 		end
 	end
 end
