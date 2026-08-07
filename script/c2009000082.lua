@@ -131,7 +131,7 @@ function s.attachop(e,tp,eg,ep,ev,re,r,rp)
 end
 --negate chain 1
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentChain()>=1 and Duel.IsChainDisablable(0)
+	return Duel.GetCurrentChain()>1 and Duel.IsChainDisablable(1)
 end
 
 function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -148,6 +148,6 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.NegateEffect(0)
+	Duel.NegateEffect(1)
 	Duel.SetChainLimitTillChainEnd(aux.FALSE)
 end
