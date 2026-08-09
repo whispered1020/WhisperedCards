@@ -68,7 +68,12 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetDecktopGroup(tp,ct)
 	local sg=g:FilterSelect(tp,s.tgfilter,1,1,nil,tp):GetFirst()
 	Duel.DisableShuffleCheck()
-	if Duel.SendtoGrave(sg,REASON_EFFECT+REASON_EXCAVATE)~=0 then
+	if not sg then
+		Duel.MoveToDeckBottom(g)
+		Duel.SortDeckbottom(tp,tp,#g)
+		return
+	end
+	if sg and Duel.SendtoGrave(sg,REASON_EFFECT+REASON_EXCAVATE)~=0 then
 		local ct=Duel.GetOperatedGroup():FilterCount(Card.IsLocation,nil,LOCATION_GRAVE)
 		if ct>0 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
@@ -81,13 +86,10 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
-	ct=ct-#sg
-	if ct>0 then
-		Duel.SortDecktop(tp,tp,ct)
-		for i=1,ct do
-			local mg=Duel.GetDecktopGroup(tp,1)
-			Duel.MoveSequence(mg:GetFirst(),1)
-		end
+	g=g-sg
+	if #g>0 then
+		Duel.MoveToDeckBottom(g)
+		Duel.SortDeckbottom(tp,tp,#g)
 	end
 end
 --target 1 face-up card your opponent controls, choose 1 or 2, excavate that many cards, then send 1 excavated plant monster to the gy, and if you do, destroy that target
