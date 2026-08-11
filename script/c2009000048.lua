@@ -83,36 +83,34 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if not tc or not tc:IsRelateToEffect(e) then return end
-	if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)==0 then return end
-	local lv=tc:GetLevel()
-	if lv<=0 then return end
-	-- Treat Coryphora as a Level equal to the summoned monster
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_SINGLE)
-	e0:SetCode(EFFECT_RANK_LEVEL)
-	e0:SetValue(lv)
-	e0:SetReset(RESET_EVENT+RESETS_STANDARD)
-	c:RegisterEffect(e0)
-	-- Find a Plant Xyz Monster that can use Coryphora + the revived monster
-	local g=Duel.GetMatchingGroup(function(mc)
-		return mc:IsRace(RACE_PLANT)
-			and mc:IsType(TYPE_XYZ)
-			and mc:IsXyzSummonable()
-			and mc:GetRank()==lv
-	end,tp,LOCATION_EXTRA,0,nil)
-	if #g==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local xyz=g:Select(tp,1,1,nil):GetFirst()
-	local mg=Group.FromCards(c,tc)
-	if Duel.XyzSummon(tp,xyz,mg,2,2) then
-		-- Destroy the Xyz Summoned monster during the End Phase
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e1:SetCode(EVENT_PHASE+PHASE_END)
-		e1:SetCountLimit(1)
-		e1:SetLabelObject(xyz)
-		e1:SetOperation(s.desop)
-		Duel.RegisterEffect(e1,tp)
+	if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0 then
+		local lv=tc:GetLevel()
+		if lv<=0 then return end
+		--Return Coryphora to the Extra Deck
+		if Duel.SendtoDeck(c,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
+			--Find a Plant Xyz whose Rank matches the revived monster's Level
+			local g=Duel.GetMatchingGroup(function(mc)
+				return mc:IsRace(RACE_PLANT)
+					and mc:IsType(TYPE_XYZ)
+					and mc:GetRank()==lv
+					and mc:IsXyzSummonable()
+			end,tp,LOCATION_EXTRA,0,nil)
+			if #g>0 then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+				local xyz=g:Select(tp,1,1,nil):GetFirst()
+				--Xyz Summon using only the revived monster
+				if Duel.XyzSummon(tp,xyz,Group.FromCards(tc),1,1) then
+					--Destroy it during the End Phase
+					local e0a=Effect.CreateEffect(e:GetHandler())
+					e0a:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+					e0a:SetCode(EVENT_PHASE+PHASE_END)
+					e0a:SetCountLimit(1)
+					e0a:SetLabelObject(xyz)
+					e0a:SetOperation(s.desop)
+					Duel.RegisterEffect(e0a,tp)
+				end
+			end
+		end
 	end
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
