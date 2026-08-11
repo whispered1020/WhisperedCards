@@ -65,17 +65,64 @@ function s.excaop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
-function s.spfilter(c)
-	return c:IsXyzSummonable()
+function s.gyfilter(c,e,tp)
+	return c:IsRace(RACE_PLANT) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_EXTRA,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+function s.spfilter(c)
+	return c:IsRace(RACE_PLANT) and c:IsXyzSummonable()
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.gyfilter(chkc,e,tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.gyfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectTarget(tp,s.gyfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sc=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil):GetFirst()
-	if sc then
-		Duel.XyzSummon(tp,sc)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if not tc or not tc:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0 then
+		local lv=tc:GetLevel()
+		if lv<=0 then return end
+		-- Make Coryphora a Level equal to the revived monster
+		local e0=Effect.CreateEffect(c)
+		e0:SetType(EFFECT_TYPE_SINGLE)
+		e0:SetCode(EFFECT_LEVEL)
+		e0:SetValue(lv)
+		e0:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		c:RegisterEffect(e0)
+		local g=Duel.GetMatchingGroup(function(mc)
+		return mc:IsRace(RACE_PLANT)
+			and mc:IsType(TYPE_XYZ)
+			and mc:IsCanBeSpecialSummoned(nil,0,tp,false,false)
+			and mc:GetRank()==lv
+		end,tp,LOCATION_EXTRA,0,nil)
+		if #g==0 then return end
+
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local xyz=g:Select(tp,1,1,nil):GetFirst()
+		-- Xyz Summon using Coryphora and the revived monster
+		if Duel.XyzSummon(tp,xyz,Group.FromCards(c,tc),2,2) then
+			local e0b=Effect.CreateEffect(c)
+			e0b:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e0b:SetCode(EVENT_PHASE+PHASE_END)
+			e0b:SetCountLimit(1)
+			e0b:SetLabelObject(xyz)
+			e0b:SetCondition(s.descon)
+			e0b:SetOperation(s.desop)
+			Duel.RegisterEffect(e0b,tp)
+		end
+	end
+	function s.descon(e,tp,eg,ep,ev,re,r,rp)
+		return e:GetLabelObject():IsOnField()
+	end
+	function s.desop(e,tp,eg,ep,ev,re,r,rp)
+		local c=e:GetLabelObject()
+		if c:IsOnField() then
+			Duel.Destroy(c,REASON_EFFECT)
+		end
+	e:Reset()
 	end
 end
