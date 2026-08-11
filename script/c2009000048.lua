@@ -96,7 +96,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.GetMatchingGroup(function(mc)
 		return mc:IsRace(RACE_PLANT)
 			and mc:IsType(TYPE_XYZ)
-			and mc:IsCanBeSpecialSummoned(nil,0,tp,false,false)
+			and mc:IsCanBeSpecialSummoned(e,0,tp,false,false)
 			and mc:GetRank()==lv
 		end,tp,LOCATION_EXTRA,0,nil)
 		if #g==0 then return end
