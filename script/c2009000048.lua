@@ -89,7 +89,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		-- Make Coryphora a Level equal to the revived monster
 		local e0=Effect.CreateEffect(c)
 		e0:SetType(EFFECT_TYPE_SINGLE)
-		e0:SetCode(EFFECT_LEVEL)
+		e0:SetCode(EFFECT_RANK_LEVEL)
 		e0:SetValue(lv)
 		e0:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e0)
