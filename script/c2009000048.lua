@@ -73,8 +73,10 @@ function s.spfilter(c,e,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0
 end
 function s.xyzfilter(c,e,tp,pg,tc)
+	local lvl=tc:GetLevel()
 	return (#pg<=0 or pg:IsContains(tc)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
-		and Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0
+		and Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0 and c:IsType(TYPE_XYZ) and c:IsRace(RACE_PLANT)
+		and c:IsLevel(lvl)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.gyfilter(chkc,e,tp) end
