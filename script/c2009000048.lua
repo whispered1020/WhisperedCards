@@ -60,6 +60,7 @@ function s.excaop(e,tp,eg,ep,ev,re,r,rp)
 		td:Sub(tg)
 	end
 	if #td>0 then
+		Duel.DisableShuffleCheck()
 		Duel.MoveToDeckBottom(td)
 		Duel.SortDeckbottom(tp,tp,#td)
 	end
