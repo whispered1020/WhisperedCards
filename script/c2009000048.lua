@@ -73,11 +73,10 @@ function s.spfilter(c,e,tp)
 	return c:IsRace(RACE_PLANT) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 		and Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0
 end
-function s.xyzfilter(c,e,tp,pg,tc)
-	local lvl=tc:GetLevel()
+function s.xyzfilter(c,e,tp,pg,tc,lv)
 	return (#pg<=0 or pg:IsContains(tc)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 		and Duel.GetLocationCountFromEx(tp,tp,e:GetHandler(),c)>0 and c:IsType(TYPE_XYZ) and c:IsRace(RACE_PLANT)
-		and c:IsLevel(lvl)
+		and c:IsLevel(lv)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.gyfilter(chkc,e,tp) end
@@ -100,7 +99,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(tc),tp,nil,nil,REASON_XYZ)
 			--Find a Plant Xyz whose Rank matches the revived monster's Level
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local g=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,pg,tc)
+			local g=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,pg,tc,lv)
 			local sc=g:GetFirst()
 			if sc then
 				sc:SetMaterial(tc)
