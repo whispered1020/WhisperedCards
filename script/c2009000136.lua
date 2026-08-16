@@ -1,0 +1,104 @@
+--Eonwheel, the Lost Age
+--Scripted by: Whispered
+local s,id=GetID()
+function s.initial_effect(c)
+	--Return a face-down card; Special Summon "Eonwheel, The Eonfall"
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_SUMMON_SUCCESS)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCountLimit(1,id)
+    e1:SetCost(s.spcost)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1)
+	local e1b=e1:Clone()
+	e1b:SetCode(EVENT_SPSUMMON_SUCCESS)
+	c:RegisterEffect(e1b)
+	--If a face-down card you control is returned to the hand
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_RELEASE+CATEGORY_TOGRAVE)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_TO_HAND)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetCondition(s.tgcon)
+    e2:SetCost(Cost.SelfTribute)
+	e2:SetTarget(s.tgtg)
+	e2:SetOperation(s.tgop)
+	c:RegisterEffect(e2)
+end
+s.listed_series={0xf22}
+s.listed_names={2009000137}
+
+--
+function s.fdfilter(c)
+	return c:IsFacedown() and c:IsAbleToHand()
+end
+function s.spfilter(c,e,tp)
+	return c:IsCode(2009000137)
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
+end
+function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingTarget(s.fdfilter,tp,LOCATION_ONFIELD,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.fdfilter,tp,LOCATION_ONFIELD,0,1,1,nil)
+    Duel.SendtoHand(g,nil,REASON_COST)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+	local g=Duel.SelectTarget(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,tp,LOCATION_DECK)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) then
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
+		--Cannot Special Summon from the Extra Deck this turn
+	end
+end
+--
+function s.gyfilter(c)
+	return c:IsSetCard(0xf22) and c:IsAbleToGrave()
+end
+function s.gyfilter2(c)
+	return s.gyfilter(c) and (c:IsMonster() or c:IsTrap())
+end
+function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(function(c,tp)
+		return c:IsPreviousLocation(LOCATION_ONFIELD)
+			and c:IsPreviousControler(tp)
+			and c:IsPreviousPosition(POS_FACEDOWN)
+			and not (re and re:GetHandler()==e:GetHandler())
+	end,1,nil,tp)
+end
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.IsExistingMatchingCard(s.gyfilter,tp,LOCATION_DECK,0,2,nil)
+		and Duel.IsExistingMatchingCard(s.gyfilter2,tp,LOCATION_DECK,0,1,nil)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
+end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(s.gyfilter,tp,LOCATION_DECK,0,nil)
+	if #g<2 then return end
+	--Select 1 monster/Trap first
+	local g2=g:Filter(s.gyfilter2,nil)
+	if #g2==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local sg=g2:Select(tp,1,1,nil)
+	--Select the second card
+	local g3=g:Clone()
+	g3:RemoveCard(sg:GetFirst())
+	if #g3==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local tc=g3:Select(tp,1,1,nil)
+	sg:Merge(tc)
+	Duel.SendtoGrave(sg,REASON_EFFECT)
+end
