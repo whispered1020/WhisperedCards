@@ -18,6 +18,7 @@ function s.initial_effect(c)
 	local e1b=Effect.CreateEffect(c)
 	e1b:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1b:SetCode(EVENT_TO_HAND)
+	e1b:SetRange(LOCATION_HAND)
 	e1b:SetOperation(s.regflag)
 	c:RegisterEffect(e1b)
 	--Banish 1 "Eonwheel" card from the GY; Special Summon "Eonwheel, The Remnant"
