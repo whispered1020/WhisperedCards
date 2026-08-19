@@ -16,18 +16,19 @@ end
 s.listed_series={0xf22}
 
 --Target 1 face-down card on the field; apply 1 of these effects depending on who controls it. You: Return it to the hand, then you can add 1 "Eonwheel" Spell/Trap from your Deck to your hand. Your opponent: It cannot be flipped face-up or activated this turn.
-function s.filter(c)
-    return c:IsFacedown() and c:IsAbleToHand()
+function s.filter(c,tp)
+    return (c:IsFacedown() and c:IsControler(1-tp)) or (c:IsFacedown() and c:IsAbleToHand() and c:IsControler(tp))
 end
 function s.thfilter(c)
     return c:IsSetCard(0xf22) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-    if chkc then return chkc:IsOnField() and s.filter(chkc) end
-    if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-    local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-    Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+    if chkc then return chkc:IsOnField() and s.filter(chkc,tp) end
+    if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,tp) end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEDOWN)
+    local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,tp)
+    Duel.ConfirmCards(1-tp,g)
+    Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
@@ -55,5 +56,4 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
             tc:RegisterEffect(e2)
         end
     end
-    --Cannot Special Summon from the Extra Deck this turn
 end

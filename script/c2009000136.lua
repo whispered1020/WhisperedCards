@@ -47,6 +47,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.IsExistingTarget(s.fdfilter,tp,LOCATION_ONFIELD,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.fdfilter,tp,LOCATION_ONFIELD,0,1,1,nil)
+	Duel.ConfirmCards(1-tp,g)
     Duel.SendtoHand(g,nil,REASON_COST)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -59,14 +60,13 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
-		--Cannot Special Summon from the Extra Deck this turn
 	end
 end
 --
-function s.gyfilter(c)
+function s.tgfilter(c)
 	return c:IsSetCard(0xf22) and c:IsAbleToGrave()
 end
-function s.gyfilter2(c)
+function s.tgfilter2(c)
 	return s.gyfilter(c) and (c:IsMonster() or c:IsTrap())
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
@@ -79,17 +79,17 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.gyfilter,tp,LOCATION_DECK,0,2,nil)
-		and Duel.IsExistingMatchingCard(s.gyfilter2,tp,LOCATION_DECK,0,1,nil)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,2,nil)
+		and Duel.IsExistingMatchingCard(s.tgfilter2,tp,LOCATION_DECK,0,1,nil)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.gyfilter,tp,LOCATION_DECK,0,nil)
+	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
 	if #g<2 then return end
 	--Select 1 monster/Trap first
-	local g2=g:Filter(s.gyfilter2,nil)
+	local g2=g:Filter(s.tgfilter2,nil)
 	if #g2==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local sg=g2:Select(tp,1,1,nil)

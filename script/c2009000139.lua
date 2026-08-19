@@ -9,20 +9,23 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e1:SetCountLimit(1,id)
+	e1:SetCountLimit(1)
 	e1:SetTarget(s.rthtg)
 	e1:SetOperation(s.rthop)
 	c:RegisterEffect(e1)
 	--Activate this card from the hand if it was Set and returned
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_TO_HAND)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-    e2:SetCountLimit(1,{id,1},EFFECT_COUNT_CODE_OATH)
-	e2:SetCondition(s.actcon)
-	e2:SetOperation(s.actop)
-	c:RegisterEffect(e2)
+	local e2a=Effect.CreateEffect(c)
+	e2a:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e2a:SetCode(EVENT_TO_HAND)
+	e2a:SetOperation(s.flagop)
+	c:RegisterEffect(e2a)
+	local e2b=Effect.CreateEffect(c)
+	e2b:SetDescription(aux.Stringid(id,1))
+	e2b:SetType(EFFECT_TYPE_SINGLE)
+	e2b:SetCode(EFFECT_TRAP_ACT_IN_HAND)
+    e2b:SetCountLimit(1,{id,1},EFFECT_COUNT_CODE_OATH)
+	e2b:SetCondition(s.handcon)
+	c:RegisterEffect(e2b)
 end
 
 function s.rthfilter(c,tp)
@@ -43,21 +46,13 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
-function s.actcon(e,tp,eg,ep,ev,re,r,rp)
+function s.flagop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-
-	return c:IsPreviousLocation(LOCATION_SZONE)
-		and c:IsPreviousPosition(POS_FACEDOWN)
-		and c:IsPreviousControler(tp)
-end
-function s.actop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsLocation(LOCATION_HAND) then
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_TRAP_ACT_IN_HAND)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		c:RegisterEffect(e1)
+	if c:IsPreviousLocation(LOCATION_SZONE)
+		and c:IsPreviousPosition(POS_FACEDOWN) then
+		c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
 	end
+end
+function s.handcon(e)
+	return e:GetHandler():GetFlagEffect(id)>0
 end
