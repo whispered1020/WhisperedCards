@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	e1b:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1b:SetCode(EVENT_TO_HAND)
 	e1b:SetOperation(s.regflag)
-	c:RegisterEffect(e1b,tp)
+	c:RegisterEffect(e1b)
 	--Banish 1 "Eonwheel" card from the GY; Special Summon "Eonwheel, The Remnant"
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -45,17 +45,14 @@ function s.spfilter(c,tp)
 		and c:IsPreviousPosition(POS_FACEDOWN)
 end
 function s.regflag(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsLocation(LOCATION_HAND) and eg:IsExists(s.spfilter,1,nil,tp) then
-		c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
-	end
+    local c=e:GetHandler()
+    if eg:IsExists(s.spfilter,1,nil,tp) then
+        c:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
+    end
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsPreviousLocation(LOCATION_ONFIELD) then
-		return true
-	end
-	return c:GetFlagEffect(id)>0
+    local c=e:GetHandler()
+    return c:IsPreviousLocation(LOCATION_ONFIELD) or c:GetFlagEffect(id)>0
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
