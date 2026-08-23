@@ -25,6 +25,7 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_TOGRAVE)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_TO_HAND)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.tgcon)
@@ -61,20 +62,11 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 	    Duel.SSet(tp,dc)
     end
-	--Prevent activation this turn
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e1:SetTargetRange(LOCATION_SZONE,0)
-	e1:SetValue(1)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	dc:RegisterEffect(e1)
 end
 --
 function s.returnfilter(c,tp)
 	return c:IsSetCard(0xf22) and c:IsPreviousLocation(LOCATION_ONFIELD)
-		and c:IsPreviousControler(tp) and not c:IsCode(id)
+		and c:IsPreviousControler(tp)
 end
 function s.deckfilter(c)
 	return c:IsSetCard(0xf22) and not c:IsCode(id) and c:IsAbleToGrave()
