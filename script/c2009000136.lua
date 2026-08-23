@@ -67,7 +67,7 @@ function s.tgfilter(c)
 	return c:IsSetCard(0xf22) and c:IsAbleToGrave()
 end
 function s.tgfilter2(c)
-	return s.gyfilter(c) and (c:IsMonster() or c:IsTrap())
+	return s.tgfilter(c) and (c:IsMonster() or c:IsTrap())
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(function(c,tp)

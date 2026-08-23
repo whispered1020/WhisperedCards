@@ -16,10 +16,12 @@ function s.initial_effect(c)
 	--Banish from GY; add 1 "Eonwheel" monster, then Set 1 "Eonwheel" Trap
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_REMOVE+CATEGORY_TOHAND+CATEGORY_SET)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetCategory(CATEGORY_REMOVE+CATEGORY_TOHAND)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+	e2:SetHintTiming(TIMING_END_PHASE,TIMING_STANDBY_PHASE|TIMING_MAIN_END|TIMINGS_CHECK_MONSTER_E)
 	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.gytg)
 	e2:SetOperation(s.gyop)
@@ -58,7 +60,7 @@ function s.gytg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.gyop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 then
+	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(s.trapfilter,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
 	    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 	        local tg=Duel.GetMatchingGroup(s.trapfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,nil)
 	        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
@@ -66,7 +68,7 @@ function s.gyop(e,tp,eg,ep,ev,re,r,rp)
 	        if sg then
 		        Duel.SSet(tp,sg)
 		        Duel.ConfirmCards(1-tp,sg)
-	        end
+		    end
         end
     else return
     end

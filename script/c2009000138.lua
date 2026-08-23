@@ -55,7 +55,7 @@ end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 	local tc=Duel.SelectMatchingCard(tp,s.rthfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil):GetFirst()
-	if tc and tc:IsRelateToEffect(e) then
+	if tc then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
