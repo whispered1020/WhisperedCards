@@ -35,13 +35,14 @@ function s.initial_effect(c)
 end
 
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.IsTurnPlayer(1-tp) then return false end
-	if not re then return false end
-	local rc=re:GetHandler()
-	return re:IsActivated()
-		and rc:IsSetCard(0xf22)
-		and rc:IsLocation(LOCATION_HAND)
-		and rp==tp
+    if not Duel.IsTurnPlayer(1-tp) then return false end
+    if not re or not re:IsActivated() then return false end
+    local rc=re:GetHandler()
+    local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
+    return rc
+        and rc:IsSetCard(0xf22)
+        and (loc&LOCATION_HAND)~=0
+        and rp==tp
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
