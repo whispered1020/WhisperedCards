@@ -27,22 +27,24 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,tp) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEDOWN)
     local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,tp)
-    Duel.ConfirmCards(1-tp,g)
     Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
     if tc:IsRelateToEffect(e) and tc:IsFacedown() then
         if tc:IsControler(tp) then
-            if Duel.SendtoHand(tc,nil,REASON_EFFECT)~=0 and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-                Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-                local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-                if #g>0 then
-                    Duel.SendtoHand(g,nil,REASON_EFFECT)
-                    Duel.ConfirmCards(1-tp,g)
+            Duel.ConfirmCards(1-tp,tc)
+            if Duel.SendtoHand(tc,nil,REASON_EFFECT)~=0 and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) then
+                if Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+                    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+                    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+                    if #g>0 then
+                        Duel.SendtoHand(g,nil,REASON_EFFECT)
+                        Duel.ConfirmCards(1-tp,g)
+                    end
                 end
             end
-        else
+        elseif tc:IsControler(1-tp) then
             local e1=Effect.CreateEffect(e:GetHandler())
             e1:SetType(EFFECT_TYPE_SINGLE)
             e1:SetCode(EFFECT_CANNOT_TRIGGER)
