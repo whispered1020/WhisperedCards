@@ -28,20 +28,21 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2b)
 end
 
-function s.rthfilter(c,tp)
-	return c:IsAbleToHand() and c:IsSummonPlayer(1-tp) and c:IsLocation(LOCATION_MZONE)
+function s.cfilter2(c,e,tp)
+	return c:IsSummonPlayer(1-tp) and c:IsCanBeEffectTarget(e) and c:IsAbleToHand()
 end
 function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return eg:IsExists(s.rthfilter,1,nil,1-tp) end
-	local g=eg:Filter(s.rthfilter,nil,1-tp)
+	if chkc then return s.cfilter2(chkc,e,tp) and eg:IsContains(chkc) end
+	if chk==0 then return eg and eg:IsExists(s.cfilter2,1,nil,e,tp) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-    local tg=g:Select()
+	local tg=eg:FilterSelect(tp,s.cfilter2,1,1,nil,e,tp)
     Duel.SetTargetCard(tg)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,tg,1,0,0)
 end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	local c=e:GetHandler()
+	local tc=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):GetFirst()
+	if c:IsRelateToEffect(re) and tc and tc:IsRelateToEffect(re) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end

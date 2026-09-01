@@ -60,8 +60,10 @@ function s.gytg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.gyop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(s.trapfilter,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
-	    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0
+		and Duel.IsExistingMatchingCard(s.trapfilter,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil)
+		and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
+	    if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 	        local tg=Duel.GetMatchingGroup(s.trapfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,nil)
 	        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	        local sg=tg:Select(tp,1,1,nil):GetFirst()
