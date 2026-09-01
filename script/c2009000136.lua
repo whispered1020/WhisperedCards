@@ -69,11 +69,14 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
+function s.rescon(sg,e,tp,mg)
+	return sg:IsExists(s.tgfilter2,1,nil) and sg:IsExists(s.tgfilter,1,nil)
+end
 function s.tgfilter(c)
 	return c:IsSetCard(0xf22) and c:IsAbleToGrave()
 end
 function s.tgfilter2(c)
-	return s.tgfilter(c) and (c:IsMonster() or c:IsTrap())
+	return c:IsSetCard(0xf22) and c:IsAbleToGrave() and (c:IsMonster() or c:IsTrap())
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(function(c,tp)
@@ -85,26 +88,17 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,2,nil)
-		and Duel.IsExistingMatchingCard(s.tgfilter2,tp,LOCATION_DECK,0,1,nil)
+	if chk==0 then
+		local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
+		return g:GetClassCount(Card.GetCode)>=2
 	end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
-	if #g<2 then return end
-	--Select 1 monster/Trap first
-	local g2=g:Filter(s.tgfilter2,nil)
-	if #g2==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local sg=g2:Select(tp,1,1,nil)
-	--Select the second card
-	local g3=g:Clone()
-	g3:RemoveCard(sg:GetFirst())
-	if #g3==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local tc=g3:Select(tp,1,1,nil)
-	sg:Merge(tc)
-	Duel.SendtoGrave(sg,REASON_EFFECT)
+	if g:GetClassCount(Card.GetCode)>=2 then
+		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_TOGRAVE)
+		Duel.SendtoGrave(sg,REASON_EFFECT)
+	end
 end

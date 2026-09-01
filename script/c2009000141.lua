@@ -92,8 +92,8 @@ function s.gytg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.gyop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 then
-	    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
+	    if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
             local sg=Duel.SelectMatchingCard(tp,s.trapfilter,tp,LOCATION_DECK,0,1,1,nil)
             if sg then
