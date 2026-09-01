@@ -42,7 +42,7 @@ end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):GetFirst()
-	if c:IsRelateToEffect(re) and tc and tc:IsRelateToEffect(re) then
+	if tc and tc:IsRelateToEffect(re) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
