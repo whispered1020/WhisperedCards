@@ -42,7 +42,7 @@ end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) then
+	if tc and tc:IsOnField() then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
