@@ -41,8 +41,8 @@ function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):GetFirst()
-	if tc and tc:IsRelateToEffect(re) then
+	local tc=Duel.GetFirstTarget()
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end
