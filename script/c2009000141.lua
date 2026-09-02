@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e0:SetCode(EVENT_TO_HAND)
-	e0:SetRange(LOCATION_ONFIELD)
+	e0:SetRange(LOCATION_SZONE)
 	e0:SetOperation(s.regflag)
 	c:RegisterEffect(e0)
 	--Return all monsters to the hand
@@ -43,13 +43,13 @@ end
 function s.regflag(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     if eg:IsExists(s.flagfilter,1,nil,tp) then
-        c:RegisterFlagEffect(id+100,RESET_PHASE|PHASE_END,0,1)
+        Duel.RegisterFlagEffect(id,RESET_PHASE|PHASE_END,0,1)
     end
 end
 --
 function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
-		--and e:GetHandler():GetFlagEffect(id+100)>0
+		and Duel.GetFlagEffect(id)>0
 end
 function s.rthfilter(c)
 	return c:IsAbleToHand()
