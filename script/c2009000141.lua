@@ -49,7 +49,7 @@ end
 --
 function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
-		and e:GetHandler():GetFlagEffect(id+100)>0
+		--and e:GetHandler():GetFlagEffect(id+100)>0
 end
 function s.rthfilter(c)
 	return c:IsAbleToHand()
