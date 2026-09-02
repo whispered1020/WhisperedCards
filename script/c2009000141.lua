@@ -2,17 +2,10 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	--Remember when a card is returned to the hand
-	local e0=Effect.CreateEffect(c)
-	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e0:SetCode(EVENT_TO_HAND)
-	e0:SetRange(LOCATION_SZONE)
-	e0:SetOperation(s.regflag)
-	c:RegisterEffect(e0)
 	--Return all monsters to the hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_SZONE)
@@ -36,20 +29,13 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
-function s.flagfilter(c,tp)
-	return c:IsPreviousLocation(LOCATION_ONFIELD+LOCATION_GRAVE+LOCATION_REMOVED)
-		or (c:IsPreviousLocation(LOCATION_EXTRA) and c:IsFaceup())
-end
-function s.regflag(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    if eg:IsExists(s.flagfilter,1,nil,tp) then
-        Duel.RegisterFlagEffect(id,RESET_PHASE|PHASE_END,0,1)
-    end
-end
---
+
+--During the Main Phase, if you control an "Eonwheel" card, and have at least 1 "Eonwheel" card in your GY and banishment
 function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
-		and Duel.GetFlagEffect(id)>0
+		and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0xf22),tp,LOCATION_ONFIELD,0,1,nil)
+		and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_GRAVE,0,1,nil,0xf22)
+		and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_REMOVED,0,1,nil,0xf22)
 end
 function s.rthfilter(c)
 	return c:IsAbleToHand()
@@ -62,21 +48,42 @@ function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.rthfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
 	Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,PLAYER_ALL,LOCATION_HAND)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_GRAVE)
+	Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_GRAVE)
 end
 function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.rthfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 	end
-	--Each player can Special Summon 1 monster
-	for p=0,1 do
-		if Duel.GetLocationCount(p,LOCATION_MZONE)<=0 then return end
-		local sg=Duel.GetMatchingGroup(s.spfilter,p,LOCATION_HAND,0,nil,e,p)
-		if #sg>0 and Duel.SelectYesNo(p,aux.Stringid(id,2)) then
-			Duel.Hint(HINT_SELECTMSG,p,HINTMSG_SPSUMMON)
-			local tc=sg:Select(p,1,1,nil):GetFirst()
-			if tc then
-				Duel.SpecialSummon(tc,0,p,p,false,false,POS_FACEDOWN_DEFENSE)
+	if Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
+		--You can return 1 of your banished "Eonwheel" cards to the GY, and if you do, banish 1 card from your opponent's GY.
+		if Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_REMOVED,0,1,nil,0xf22) and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+			local rg=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_REMOVED,0,1,1,nil,0xf22)
+			if #rg>0 and Duel.SendtoGrave(rg,REASON_EFFECT+REASON_RETURN)~=0 then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+				local og=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
+				if #og>0 then
+					Duel.Remove(og,POS_FACEUP,REASON_EFFECT)
+				end
+			end
+		end
+		--Your opponent can Special Summon 1 monster from their hand in face-down Defense Position.
+		if Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_HAND,1,nil,e,tp) and Duel.SelectYesNo(1-tp,aux.Stringid(id,5)) then
+			Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
+			local sg=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_HAND,1,1,nil,e,tp)
+			if #sg>0 then
+				if Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 and Duel.ConfirmCards(tp,sg) then
+					--Add 1 Trap Card from your GY or that is banished to your hand.
+					if Duel.IsExistingMatchingCard(Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
+						Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
+						local tg=Duel.SelectMatchingCard(tp,Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
+						if #tg>0 then
+							Duel.SendtoHand(tg,nil,REASON_EFFECT)
+						end
+					end
+				end
 			end
 		end
 	end
