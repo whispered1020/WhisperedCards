@@ -43,13 +43,13 @@ end
 function s.regflag(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     if eg:IsExists(s.flagfilter,1,nil,tp) then
-        c:RegisterFlagEffect(id,RESET_PHASE|PHASE_END,0,1)
+        c:RegisterFlagEffect(id+100,RESET_PHASE|PHASE_END,0,1)
     end
 end
 --
 function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
-		and e:GetHandler():GetFlagEffect(id)>0
+		and e:GetHandler():GetFlagEffect(id+100)>0
 end
 function s.rthfilter(c)
 	return c:IsAbleToHand()
