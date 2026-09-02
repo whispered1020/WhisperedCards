@@ -58,29 +58,34 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 		--You can return 1 of your banished "Eonwheel" cards to the GY, and if you do, banish 1 card from your opponent's GY.
-		if Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_REMOVED,0,1,nil,0xf22) and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-			local rg=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_REMOVED,0,1,1,nil,0xf22)
-			if #rg>0 and Duel.SendtoGrave(rg,REASON_EFFECT+REASON_RETURN)~=0 then
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-				local og=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
-				if #og>0 then
-					Duel.Remove(og,POS_FACEUP,REASON_EFFECT)
+		if Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_REMOVED,0,1,nil,0xf22) then
+			
+			if Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+				local rg=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_REMOVED,0,1,1,nil,0xf22)
+				if #rg>0 and Duel.SendtoGrave(rg,REASON_EFFECT+REASON_RETURN)~=0 then
+					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+					local og=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_GRAVE,1,1,nil)
+					if #og>0 then
+						Duel.Remove(og,POS_FACEUP,REASON_EFFECT)
+					end
 				end
 			end
 		end
 		--Your opponent can Special Summon 1 monster from their hand in face-down Defense Position.
-		if Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_HAND,1,nil,e,tp) and Duel.SelectYesNo(1-tp,aux.Stringid(id,5)) then
-			Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
-			local sg=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_HAND,1,1,nil,e,tp)
-			if #sg>0 then
-				if Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 and Duel.ConfirmCards(tp,sg) then
+		if Duel.IsExistingMatchingCard(s.spfilter,tp,0,LOCATION_HAND,1,nil,e,tp) then
+			if Duel.SelectYesNo(1-tp,aux.Stringid(id,5)) then
+				Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
+				local sg=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_HAND,1,1,nil,e,tp)
+				if #sg>0 then
+					if Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 and Duel.ConfirmCards(tp,sg) then
 					--Add 1 Trap Card from your GY or that is banished to your hand.
-					if Duel.IsExistingMatchingCard(Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
-						Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
-						local tg=Duel.SelectMatchingCard(tp,Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
-						if #tg>0 then
-							Duel.SendtoHand(tg,nil,REASON_EFFECT)
+						if Duel.IsExistingMatchingCard(Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
+							Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
+							local tg=Duel.SelectMatchingCard(tp,Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
+							if #tg>0 then
+								Duel.SendtoHand(tg,nil,REASON_EFFECT)
+							end
 						end
 					end
 				end
