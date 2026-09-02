@@ -2,12 +2,13 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	--Track cards returned to the hand
+	--Remember when a card is returned to the hand
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e0:SetCode(EVENT_TO_HAND)
-	e0:SetOperation(s.regreturn)
-	c:RegisterEffect(e0,tp)
+	e0:SetRange(LOCATION_ONFIELD)
+	e0:SetOperation(s.regflag)
+	c:RegisterEffect(e0)
 	--Return all monsters to the hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -35,16 +36,20 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
-function s.regreturn(e,tp,eg,ep,ev,re,r,rp)
-	if #eg>0 then
-		Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-		Duel.RegisterFlagEffect(1-tp,id,RESET_PHASE+PHASE_END,0,1)
-	end
+function s.flagfilter(c,tp)
+	return c:IsPreviousLocation(LOCATION_ONFIELD+LOCATION_GRAVE+LOCATION_REMOVED)
+		or (c:IsPreviousLocation(LOCATION_EXTRA) and c:IsFaceup())
+end
+function s.regflag(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if eg:IsExists(s.flagfilter,1,nil,tp) then
+        c:RegisterFlagEffect(id,RESET_PHASE|PHASE_END,0,1)
+    end
 end
 --
 function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsMainPhase()
-		and Duel.GetFlagEffect(tp,id)>0
+		and e:GetHandler():GetFlagEffect(id)>0
 end
 function s.rthfilter(c)
 	return c:IsAbleToHand()
