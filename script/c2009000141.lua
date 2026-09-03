@@ -78,7 +78,7 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 				Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_SPSUMMON)
 				local sg=Duel.SelectMatchingCard(1-tp,s.spfilter,tp,0,LOCATION_HAND,1,1,nil,e,tp)
 				if #sg>0 then
-					if Duel.SpecialSummon(sg,0,tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 then
+					if Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 then
 						Duel.ConfirmCards(tp,sg)
 					--Add 1 Trap Card from your GY or that is banished to your hand.
 						if Duel.IsExistingMatchingCard(Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
