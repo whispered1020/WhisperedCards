@@ -13,6 +13,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_DRAW+CATEGORY_HANDES)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_CHAINING)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetRange(LOCATION_FZONE)
 	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.drcon)
@@ -35,12 +36,10 @@ function s.initial_effect(c)
 end
 
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-    if not Duel.IsTurnPlayer(1-tp) then return false end
-    if not re or not re:IsActivated() then return false end
-    local rc=re:GetHandler()
     local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
-    return rc
-        and rc:IsSetCard(0xf22)
+    return Duel.IsTurnPlayer(1-tp)
+		and re:IsHasType(EFFECT_TYPE_ACTIVATE)
+        and re:IsSetCard(0xf22)
         and (loc&LOCATION_HAND)~=0
         and rp==tp
 end
