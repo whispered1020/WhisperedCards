@@ -39,9 +39,10 @@ function s.drcon(e,tp,eg,ep,ev,re,r,rp)
     local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
     return Duel.IsTurnPlayer(1-tp)
 		and re:IsHasType(EFFECT_TYPE_ACTIVATE)
-        and re:IsSetCard(0xf22)
+        and re:GetHandler():IsSetCard(0xf22)
         and (loc&LOCATION_HAND)~=0
         and rp==tp
+		
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
