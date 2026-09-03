@@ -43,6 +43,9 @@ end
 function s.spfilter(c,e,tp)
 	return c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
 end
+function s.trapfilter2(c)
+    return c:IsTrap() and c:IsAbleToHand()
+end
 function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.rthfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
 	local g=Duel.GetMatchingGroup(s.rthfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
@@ -81,9 +84,9 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 					if Duel.SpecialSummon(sg,0,1-tp,1-tp,false,false,POS_FACEDOWN_DEFENSE)>0 then
 						Duel.ConfirmCards(tp,sg)
 					--Add 1 Trap Card from your GY or that is banished to your hand.
-						if Duel.IsExistingMatchingCard(Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
+						if Duel.IsExistingMatchingCard(s.trapfilter2,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) then
 							Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
-							local tg=Duel.SelectMatchingCard(tp,Card.IsTrap,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
+							local tg=Duel.SelectMatchingCard(tp,s.trapfilter2,tp,LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
 							if #tg>0 then
 								Duel.SendtoHand(tg,nil,REASON_EFFECT)
 							end
