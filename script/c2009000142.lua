@@ -44,7 +44,7 @@ function s.protcon(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.returnfilter(c,tp)
-	return c:IsSetCard(0xf22) and c:IsPreviousLocation(LOCATION_ONFIELD)
+	return c:IsPreviousLocation(LOCATION_ONFIELD)
 		and c:IsPreviousControler(tp)
 end
 function s.deckfilter(c)
