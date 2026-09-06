@@ -42,7 +42,6 @@ s.listed_names={2009000138}
 --
 function s.spfilter(c,tp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD)
-		and c:IsPreviousControler(tp)
 		and c:IsPreviousPosition(POS_FACEDOWN)
 end
 function s.regflag(e,tp,eg,ep,ev,re,r,rp)
