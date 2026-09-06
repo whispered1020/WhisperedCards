@@ -38,8 +38,11 @@ end
 function s.protfilter(c)
 	return c:IsSetCard(0xf22) and c:IsFaceup() and not c:IsCode(id)
 end
+function s.protfilter2(c)
+	return c:IsSetCard(0xf22) and not c:IsCode(id)
+end
 function s.protcon(e,tp,eg,ep,ev,re,r,rp)
-    return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_GRAVE,0,1,nil,0xf22) or
+    return Duel.IsExistingMatchingCard(s.protfilter2,tp,LOCATION_GRAVE,0,1,nil) or
 		Duel.IsExistingMatchingCard(s.protfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 --
