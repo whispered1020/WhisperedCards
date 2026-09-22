@@ -41,17 +41,20 @@ function s.initial_effect(c)
 end
 s.listed_series={SET_NORDIC,SET_AESIR,SET_NORDIC_RELIC,SET_NORDIC_ASCENDANT,SET_NORDIC_BEAST,SET_NORDIC_ALFAR}
 
+function s.tgfilter(c)
+	return c:IsSetCard(SET_NORDIC) and c:IsAbleToGrave()
+end
 function s.tg2filter(c)
 	return c:IsSetCard(SET_NORDIC_RELIC) and c:IsNormalSpellTrap() and c:IsAbleToGrave()
 end
-function s.tgfilter(c)
-	return c:IsSetCard(SET_NORDIC) and c:IsAbleToGrave()
+function s.tg3filter(c)
+	return c:IsSetCard(SET_NORDIC) and c:IsMonster() and c:IsAbleToGrave()
 end
 function s.rescon(sg)
 	return sg:FilterCount(Card.IsMonster,nil)==1 and sg:IsExists(s.tg2filter,1,nil)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tg3filter,tp,LOCATION_DECK,0,1,nil)
 		and Duel.IsExistingMatchingCard(s.tg2filter,tp,LOCATION_DECK,0,1,nil)
 	end
 	Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
@@ -59,8 +62,9 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
 	local hg=Duel.GetMatchingGroup(s.tg2filter,tp,LOCATION_DECK,0,nil)
-	if #hg==1 then g:Sub(hg) end
-	if chk==0 then return #hg>0 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0) end
+	local hg2=Duel.GetMatchingGroup(s.tg3filter,tp,LOCATION_DECK,0,nil)
+	if #hg==0 or #hg2==0 then return end
+	if chk==0 then return #hg>0 and #hg2>0 and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0) end
 	local dg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_TOGRAVE)
 	    if #dg==2 then
 			Duel.SendtoGrave(dg,REASON_EFFECT)
