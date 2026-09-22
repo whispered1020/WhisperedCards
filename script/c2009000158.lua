@@ -32,26 +32,28 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_UPDATE_ATTACK)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetTargetRange(LOCATION_MZONE,0)
-	e3:SetTarget(function(e,c) return c:IsSetCard(SET_NORDIC|SET_AESIR) end)
+	e3:SetTarget(function(e,c) return c:IsSetCard(SET_NORDIC|SET_AESIR|SET_NORDIC_ASCENDANT|SET_NORDIC_BEAST|SET_NORDIC_ALFAR) end)
 	e3:SetValue(300)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
 	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e4)
 end
-s.listed_series={SET_NORDIC,SET_AESIR,SET_NORDIC_RELIC}
+s.listed_series={SET_NORDIC,SET_AESIR,SET_NORDIC_RELIC,SET_NORDIC_ASCENDANT,SET_NORDIC_BEAST,SET_NORDIC_ALFAR}
 
-function s.tgfilter(c)
+function s.tg2filter(c)
 	return c:IsSetCard(SET_NORDIC_RELIC) and c:IsNormalSpellTrap() and c:IsAbleToGrave()
 end
-function s.tg2filter(c)
+function s.tgfilter(c)
 	return c:IsSetCard(SET_NORDIC) and c:IsAbleToGrave()
 end
 function s.rescon(sg)
-	return sg:FilterCount(Card.IsMonster,nil)==1
+	return sg:FilterCount(Card.IsMonster,nil)==1 and sg:IsExists(s.tg2filter,1,nil)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil)
+		and Duel.IsExistingMatchingCard(s.tg2filter,tp,LOCATION_DECK,0,1,nil)
+	end
 	Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
