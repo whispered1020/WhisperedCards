@@ -32,14 +32,14 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_UPDATE_ATTACK)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetTargetRange(LOCATION_MZONE,0)
-	e3:SetTarget(function(e,c) return c:IsSetCard(SET_NORDIC|SET_AESIR|SET_NORDIC_ASCENDANT|SET_NORDIC_BEAST|SET_NORDIC_ALFAR) end)
+	e3:SetTarget(function(e,c) return c:IsSetCard(SET_NORDIC) or c:IsSetCard(SET_AESIR) end)
 	e3:SetValue(300)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
 	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e4)
 end
-s.listed_series={SET_NORDIC,SET_AESIR,SET_NORDIC_RELIC,SET_NORDIC_ASCENDANT,SET_NORDIC_BEAST,SET_NORDIC_ALFAR}
+s.listed_series={SET_NORDIC,SET_AESIR,SET_NORDIC_RELIC}
 
 function s.tgfilter(c)
 	return c:IsSetCard(SET_NORDIC) and c:IsAbleToGrave()
