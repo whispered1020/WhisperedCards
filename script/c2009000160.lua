@@ -73,8 +73,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
-function s.lkfilter(c,mg2,tc)
-	return c:IsSetCard(SET_VAMPIRE) and (c:IsLinkSummonable(tc,mg2) or c:IsCanBeXyzMaterial())
+function s.lkfilter(c,mg2)
+	return c:IsSetCard(SET_VAMPIRE) and (c:IsLinkSummonable(mg2) or c:IsCanBeXyzMaterial())
 end
 function s.mfilter(c)
 	return c:IsCanBeLinkMaterial() or c:IsCanBeXyzMaterial()
@@ -89,14 +89,15 @@ function s.xyzfilter(c,e,tp,tc)
 	return c:IsSetCard(SET_VAMPIRE) and c:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and tc:IsCanBeXyzMaterial(c,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,tc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
-function s.linkfilter(c,mg2,tc)
-	return c:IsSetCard(SET_VAMPIRE) and c:IsLinkSummonable(tc,mg2)
+function s.linkfilter(c,mg2)
+	return c:IsSetCard(SET_VAMPIRE) and c:IsLinkSummonable(mg2)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
+	local mg=Group.AddCard(mg2,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsFaceup() end
 	if chk==0 then return Duel.IsExistingTarget(s.mfilter,tp,0,LOCATION_MZONE,1,nil)
-		and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,chkc)
+		and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg)
 	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 	Duel.SelectTarget(tp,s.mfilter,tp,0,LOCATION_MZONE,1,1,nil)
@@ -118,7 +119,8 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local op=Duel.SelectOption(tp,aux.Stringid(id,3),aux.Stringid(id,4)) -- 3 = "Link Summon", 4 = "Xyz Summon"
 		if op==0 then
-			local g=Duel.SelectMatchingCard(tp,s.linkfilter,tp,LOCATION_EXTRA,0,1,1,nil,mg2,tc)
+			local mg2=Group.AddCard(mg2,tc)
+			local g=Duel.SelectMatchingCard(tp,s.linkfilter,tp,LOCATION_EXTRA,0,1,1,nil,mg2)
 			local sc=g:GetFirst()
 			if sc then
 				Duel.LinkSummon(tp,sc,tc,mg2)
