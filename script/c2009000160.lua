@@ -78,9 +78,8 @@ function s.tgfilter(tc,c,tp)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	e1:SetCode(EFFECT_XYZ_LEVEL)
 	e1:SetValue(s.lvval)
-	e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 	c:RegisterEffect(e1,true)
-	if e1 then e1:Reset() end
 	return tc:IsFaceup() and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,tc) and (tc:IsCanBeLinkMaterial() or tc:IsCanBeXyzMaterial())
 end
 function s.lvval(e,c,rc)
