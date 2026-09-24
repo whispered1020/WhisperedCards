@@ -112,9 +112,10 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		local sc=g:GetFirst()
 		if sc and sc:IsLinkMonster() then
 			Duel.LinkSummon(tp,sc,tc,mg2)
+			if e1 then e1:Reset() end
 		elseif sc and sc:IsXyzMonster() then
 			Duel.XyzSummon(tp,sc,tc,mg2)
+			if e1 then e1:Reset() end
 		end
-		if e1 then e1:Reset() end
 	end
 end
