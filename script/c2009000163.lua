@@ -33,7 +33,8 @@ s.listed_series={SET_VAMPIRE}
 --
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
     local rc=re:GetHandler()
-    return ep==tp and rc:IsSetCard(SET_VAMPIRE)
+    return ep==tp
+    --and rc:IsSetCard(SET_VAMPIRE)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return chkc:IsOnField() end
