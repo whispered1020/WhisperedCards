@@ -72,15 +72,8 @@ end
 function s.tgfilter(tc,c,tp)
 	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
 	--local mg=Group.AddCard(mg2,tc)
-	--Treat this card's Level as the same as the Xyz monster
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetCode(EFFECT_XYZ_LEVEL)
-	e1:SetValue(s.lvval)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	c:RegisterEffect(e1,true)
-	return tc:IsFaceup() and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,tc) and (tc:IsCanBeLinkMaterial() or tc:IsCanBeXyzMaterial())
+	return tc:IsFaceup() and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,tc)
+		and (tc:IsCanBeLinkMaterial() or tc:IsCanBeXyzMaterial())
 end
 function s.lvval(e,c,rc)
 	local lv=c:GetLevel()
@@ -102,6 +95,14 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
+	--Treat this card's Level as the same as the Xyz monster
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e1:SetCode(EFFECT_XYZ_LEVEL)
+	e1:SetValue(s.lvval)
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+	c:RegisterEffect(e1,true)
 	if tc and tc:IsControler(1-tp) and tc:IsFaceup() and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
 		--local mg=Group.FromCards(mg2,tc)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
@@ -112,5 +113,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		elseif sc and sc:IsXyzMonster() then
 			Duel.XyzSummon(tp,sc,tc,mg2)
 		end
+		if e1 then e1:Reset() end
 	end
 end
