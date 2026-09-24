@@ -75,16 +75,14 @@ end
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
     if tc and tc:IsRelateToEffect(e) and Duel.GetControl(tc,tp,PHASE_END,1) then
-        local e1=Effect.CreateEffect(e:GetHandler())
-        e1:SetType(EFFECT_TYPE_SINGLE)
-        e1:SetCode(EFFECT_DISABLE)
-        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-        tc:RegisterEffect(e1)
-        local e2=Effect.CreateEffect(e:GetHandler())
-        e2:SetType(EFFECT_TYPE_SINGLE)
-        e2:SetCode(EFFECT_DISABLE_EFFECT)
-        e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-        tc:RegisterEffect(e2)
+        --It cannot activate its effects this turn
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(3302)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetCode(EFFECT_CANNOT_TRIGGER)
+		e1:SetReset(RESETS_STANDARD_PHASE_END)
+		tc:RegisterEffect(e1)
     end
 end
 --
