@@ -38,6 +38,16 @@ function s.initial_effect(c)
     local e6=e4:Clone()
 	e6:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e6)
+	--Declare 1 card type; opponent mills 1 card of declared type from deck to GY
+	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(id,2))
+	e7:SetCategory(CATEGORY_TOGRAVE)
+	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e7:SetCode(EVENT_BATTLE_DAMAGE)
+	e7:SetCondition(s.tgcon)
+	e7:SetTarget(s.tgtg)
+	e7:SetOperation(s.tgop)
+	c:RegisterEffect(e7)
 end
 s.listed_series={SET_VAMPIRE}
 
@@ -117,5 +127,26 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 			Duel.XyzSummon(tp,sc,tc,mg2)
 			if e1 then e1:Reset() end
 		end
+	end
+end
+--
+function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
+	return ep~=tp
+end
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetFieldGroupCount(tp,0,LOCATION_DECK)>0 end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CARDTYPE)
+	local op=Duel.SelectOption(tp,70,71,72)
+	e:SetLabel((1<<op))
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,1-tp,LOCATION_DECK)
+end
+function s.tgfilter(c,ty)
+	return c:IsType(ty) and c:IsAbleToGrave()
+end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(1-tp,s.tgfilter,1-tp,LOCATION_DECK,0,1,1,nil,e:GetLabel())
+	if #g>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
 end
