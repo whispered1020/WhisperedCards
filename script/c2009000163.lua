@@ -20,6 +20,7 @@ function s.initial_effect(c)
     e2:SetDescription(aux.Stringid(id,0))
     e2:SetCategory(CATEGORY_DESTROY+CATEGORY_RECOVER)
     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
     e2:SetCode(EVENT_PAY_LPCOST)
     e2:SetRange(LOCATION_FZONE)
     e2:SetCountLimit(1)
@@ -33,8 +34,7 @@ s.listed_series={SET_VAMPIRE}
 --
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
     local rc=re:GetHandler()
-    return ep==tp
-    --and rc:IsSetCard(SET_VAMPIRE)
+    return ep==tp and rc:IsSetCard(SET_VAMPIRE)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chkc then return chkc:IsOnField() end
