@@ -74,10 +74,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.lkfilter(c,mg2,tc)
-	return c:IsSetCard(SET_VAMPIRE) and (c:IsLinkSummonable(mg2) or c:IsXyzSummonable(mg2))
+	return c:IsSetCard(SET_VAMPIRE) and (c:IsLinkSummonable(tc,mg2) or c:IsCanBeXyzMaterial())
 end
 function s.mfilter(c)
-	return c:IsFaceup() and (c:IsCanBeLinkMaterial() or (c:IsCanBeXyzMaterial() and c:HasLevel()))
+	return c:IsCanBeLinkMaterial() or c:IsCanBeXyzMaterial()
 end
 function s.tgfilter(tc,c,tp)
 	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
@@ -85,28 +85,26 @@ function s.tgfilter(tc,c,tp)
 	return tc:IsFaceup() and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,tc)
 		and (tc:IsCanBeLinkMaterial() or tc:IsCanBeXyzMaterial())
 end
-function s.lvval(e,c,rc)
-	local lv=c:GetLevel()
-	local xyzl=rc:GetRank()
-	if rc:IsSetCard(SET_VAMPIRE) and xyzl>0 then
-		return xyzl
-	else
-		return lv
-	end
+function s.xyzfilter(c,e,tp,tc)
+	return c:IsSetCard(SET_VAMPIRE) and c:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and tc:IsCanBeXyzMaterial(c,tp)
+		and Duel.GetLocationCountFromEx(tp,tp,tc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
+end
+function s.linkfilter(c,mg2,tc)
+	return c:IsSetCard(SET_VAMPIRE) and c:IsLinkSummonable(tc,mg2)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsFaceup() end
-	--and s.tgfilter(chkc,e:GetHandler(),tp)
-	if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
-	--if chk==0 then return Duel.IsExistingTarget(s.tgfilter,tp,0,LOCATION_MZONE,1,nil,e:GetHandler(),tp) end
+	if chk==0 then return Duel.IsExistingTarget(s.mfilter,tp,0,LOCATION_MZONE,1,nil)
+		and Duel.IsExistingMatchingCard(s.lkfilter,tp,LOCATION_EXTRA,0,1,nil,mg2,chkc)
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	Duel.SelectTarget(tp,s.tgfilter,tp,0,LOCATION_MZONE,1,1,nil,e:GetHandler(),tp)
+	Duel.SelectTarget(tp,s.mfilter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
 	--Treat this card's Level as the same as the Xyz monster
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -116,17 +114,39 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT|RESETS_STANDARD)
 	c:RegisterEffect(e1,true)
 	if tc and tc:IsControler(1-tp) and tc:IsFaceup() and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-		--local mg=Group.FromCards(mg2,tc)
+		local mg2=Duel.GetMatchingGroup(s.mfilter,tp,LOCATION_MZONE,0,nil)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local g=Duel.SelectMatchingCard(tp,s.lkfilter,tp,LOCATION_EXTRA,0,1,1,nil,mg2,tc)
-		local sc=g:GetFirst()
-		if sc and sc:IsLinkMonster() then
-			Duel.LinkSummon(tp,sc,tc,mg2)
-			if e1 then e1:Reset() end
-		elseif sc and sc:IsXyzMonster() then
-			Duel.XyzSummon(tp,sc,tc,mg2)
-			if e1 then e1:Reset() end
+		local op=Duel.SelectOption(tp,aux.Stringid(id,3),aux.Stringid(id,4)) -- 3 = "Link Summon", 4 = "Xyz Summon"
+		if op==0 then
+			local g=Duel.SelectMatchingCard(tp,s.linkfilter,tp,LOCATION_EXTRA,0,1,1,nil,mg2,tc)
+			local sc=g:GetFirst()
+			if sc then
+				Duel.LinkSummon(tp,sc,tc,mg2)
+				if e1 then e1:Reset() end
+			end
+		elseif op==1 then
+			local g=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,tc)
+			local sc=g:GetFirst()
+			if sc then
+				local mg=mg2:Select(tp,1,1,nil)
+				sc:SetMaterial(mg)
+				Duel.Overlay(sc,mg)
+				if Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)>0 then
+				sc:CompleteProcedure()
+				Duel.Overlay(sc,tc)
 		end
+				if e1 then e1:Reset() end
+			end
+		end
+	end
+end
+function s.lvval(e,c,rc)
+	local lv=c:GetLevel()
+	local xyzl=rc:GetRank()
+	if rc:IsSetCard(SET_VAMPIRE) and xyzl>0 then
+		return xyzl
+	else
+		return lv
 	end
 end
 --
@@ -140,12 +160,12 @@ function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel((1<<op))
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,1-tp,LOCATION_DECK)
 end
-function s.tgfilter(c,ty)
+function s.tg2filter(c,ty)
 	return c:IsType(ty) and c:IsAbleToGrave()
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(1-tp,s.tgfilter,1-tp,LOCATION_DECK,0,1,1,nil,e:GetLabel())
+	local g=Duel.SelectMatchingCard(1-tp,s.tg2filter,1-tp,LOCATION_DECK,0,1,1,nil,e:GetLabel())
 	if #g>0 then
 		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
