@@ -1,6 +1,5 @@
 --Eonwheel, the Lost Age
 --Scripted by: Whispered
---Revise mill effect tg
 local s,id=GetID()
 function s.initial_effect(c)
 	--Return a face-down card; Special Summon "Eonwheel, The Eonfall"
