@@ -26,6 +26,7 @@ function s.initial_effect(c)
     e2:SetOperation(s.desop)
     c:RegisterEffect(e2)
 end
+s.listed_series={SET_MOKEY_MOKEY}
 
 --
 function s.desfilter(c)
@@ -63,8 +64,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
         end
     end
 end
-
---Filter for Mokey Mokey Normal Monsters
+--
 function s.mmfilter(c)
     return c:IsSetCard(SET_MOKEY_MOKEY) and c:IsType(TYPE_NORMAL) and c:IsFaceup()
 end
