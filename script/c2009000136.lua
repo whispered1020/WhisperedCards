@@ -1,5 +1,6 @@
 --Eonwheel, the Lost Age
 --Scripted by: Whispered
+--Revise mill effect tg
 local s,id=GetID()
 function s.initial_effect(c)
 	--Return a face-down card; Special Summon "Eonwheel, The Eonfall"
@@ -70,7 +71,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.rescon(sg,e,tp,mg)
-	return sg:IsExists(s.tgfilter2,1,nil) and sg:IsExists(s.tgfilter,1,nil)
+	return sg:IsExists(s.tgfilter2,1,nil)
 end
 function s.tgfilter(c)
 	return c:IsSetCard(0xf22) and c:IsAbleToGrave()
@@ -88,16 +89,14 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then
-		local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
-		return g:GetClassCount(Card.GetCode)>=2
-	end
+	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
+	if chk==0 then return aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
-	if g:GetClassCount(Card.GetCode)>=2 then
+	if #g>=2 then
 		local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,1,tp,HINTMSG_TOGRAVE)
 		Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
