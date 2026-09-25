@@ -74,18 +74,28 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
+function s.tkfilter(c)
+	return c:IsAbleToChangeControler()
+end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsAbleToChangeControler() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToChangeControler,tp,0,LOCATION_MZONE,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(s.tkfilter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
-	local g=Duel.SelectTarget(tp,Card.IsAbleToChangeControler,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.tkfilter,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_CONTROL,g,1,0,0)
 end
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	e:GetHandler():SetCardTarget(tc)
-	if tc:IsRelateToEffect(e) then
-		Duel.GetControl(tc,tp)
+	if tc:IsRelateToEffect(e) and Duel.GetControl(tc,tp) then
+		--It cannot activate its effects this turn
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(3302)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1:SetCode(EFFECT_CANNOT_TRIGGER)
+		tc:RegisterEffect(e1)
+		--It is sent to the GY if this card leaves the field
 		local e2=Effect.CreateEffect(e:GetHandler())
 		e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
