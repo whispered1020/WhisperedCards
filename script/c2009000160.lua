@@ -86,7 +86,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsRelateToEffect(e) then
 		Duel.GetControl(tc,tp)
 		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_SINGLE)
+		e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
 		e1:SetCode(EVENT_LEAVE_FIELD)
 		e1:SetRange(LOCATION_MZONE)
 		e1:SetOperation(s.tg2op)
