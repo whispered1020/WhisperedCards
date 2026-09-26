@@ -96,21 +96,18 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
                     e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
                     e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
                     tc:RegisterEffect(e1)
-                    --Flip face-up at the End Phase of the next turn
+                    --Flip face-up at the End Phase
                     local e2=Effect.CreateEffect(e:GetHandler())
                     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
                     e2:SetCode(EVENT_PHASE+PHASE_END)
                     e2:SetRange(LOCATION_MZONE)
                     e2:SetCountLimit(1)
-                    e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,2) 
-                    e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
-                        return Duel.GetTurnCount()>e:GetLabel() and e:GetHandler():IsFacedown() end)
+                    e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,1)
                     e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
                         local c=e:GetHandler()
                         if c:IsFacedown() and c:IsRelateToEffect(e) then
                             Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
                         end end)
-                    e2:SetLabel(Duel.GetTurnCount())
                     tc:RegisterEffect(e2)
                 end
             end

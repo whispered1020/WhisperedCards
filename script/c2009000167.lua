@@ -62,7 +62,7 @@ function s.splimit(e,c)
 end
 --
 function s.sumcon(e,tp,eg,ep,ev,re,r,rp)
-	return aux.exccon(e) and Duel.IsPlayerCanAdditionalSummon(tp)
+	return aux.exccon(e)
 end
 function s.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanSummon(tp) end
@@ -71,7 +71,7 @@ function s.sumop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetDescription(aux.Stringid(id,2))
+	e1:SetDescription(aux.Stringid(id,3))
 	e1:SetCode(EFFECT_EXTRA_SUMMON_COUNT)
 	e1:SetTargetRange(LOCATION_HAND|LOCATION_MZONE,0)
 	e1:SetTarget(aux.TargetBoolFunction(Card.IsLevel,1))
