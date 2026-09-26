@@ -83,34 +83,36 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
     if ct>0 then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
         local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_SZONE,ct,ct,nil)
-        if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-            local g2=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
-            local tc=g2:GetFirst()
-            if tc then
-                Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
-                --Cannot be flipped face-up until end phase except by effects
-                local e1=Effect.CreateEffect(e:GetHandler())
-                e1:SetType(EFFECT_TYPE_SINGLE)
-                e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
-                e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-                tc:RegisterEffect(e1)
-                --Flip face-up at the End Phase of the next turn
-                local e2=Effect.CreateEffect(e:GetHandler())
-                e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-                e2:SetCode(EVENT_PHASE+PHASE_END)
-                e2:SetRange(LOCATION_MZONE)
-                e2:SetCountLimit(1)
-                e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,2) 
-                e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
-                    return Duel.GetTurnCount()>e:GetLabel() and e:GetHandler():IsFacedown() end)
-                e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
-                    local c=e:GetHandler()
-                    if c:IsFacedown() and c:IsRelateToEffect(e) then
-                        Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
-                    end end)
-                e2:SetLabel(Duel.GetTurnCount())
-                tc:RegisterEffect(e2)
+        if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) then
+            if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+                Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+                local g2=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
+                local tc=g2:GetFirst()
+                if tc then
+                    Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+                    --Cannot be flipped face-up until end phase except by effects
+                    local e1=Effect.CreateEffect(e:GetHandler())
+                    e1:SetType(EFFECT_TYPE_SINGLE)
+                    e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+                    e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+                    tc:RegisterEffect(e1)
+                    --Flip face-up at the End Phase of the next turn
+                    local e2=Effect.CreateEffect(e:GetHandler())
+                    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+                    e2:SetCode(EVENT_PHASE+PHASE_END)
+                    e2:SetRange(LOCATION_MZONE)
+                    e2:SetCountLimit(1)
+                    e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,2) 
+                    e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+                        return Duel.GetTurnCount()>e:GetLabel() and e:GetHandler():IsFacedown() end)
+                    e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+                        local c=e:GetHandler()
+                        if c:IsFacedown() and c:IsRelateToEffect(e) then
+                            Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
+                        end end)
+                    e2:SetLabel(Duel.GetTurnCount())
+                    tc:RegisterEffect(e2)
+                end
             end
         end
     end
