@@ -59,7 +59,7 @@ end
 function s.rescon(sg)
 	return sg:FilterCount(Card.IsMonster,nil)==1
 end
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeckAsCost(tp,1) end
 	Duel.DiscardDeck(tp,1,REASON_COST)
 end
