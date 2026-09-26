@@ -73,7 +73,7 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetTargetCards(e)
-    if tc and tc:IsRelateToEffect(e) then
+    if tc then
         Duel.SendtoHand(tc,nil,REASON_EFFECT)
         Duel.ConfirmCards(1-tp,tc)
     end
