@@ -83,7 +83,7 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
     if ct>0 then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
         local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_SZONE,ct,ct,nil)
-        if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.SelectYesNo(tp) then
+        if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
             local g2=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
             local tc=g2:GetFirst()
