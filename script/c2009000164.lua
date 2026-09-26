@@ -70,7 +70,7 @@ function s.mmfilter(c)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE|REASON_EFFECT)
+	return c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE|REASON_EFFECT|REASON_COST)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
     local ct=Duel.GetMatchingGroupCount(s.mmfilter,tp,LOCATION_MZONE,0,nil)
