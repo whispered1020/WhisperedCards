@@ -82,7 +82,7 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
     local ct=Duel.GetMatchingGroupCount(s.mmfilter,tp,LOCATION_MZONE,0,nil)
     if ct>0 then
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-        local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_SZONE,ct,ct,nil)
+        local g=Duel.SelectMatchingCard(tp,nil,tp,0,LOCATION_SZONE,1,ct,nil)
         if #g>0 and Duel.Destroy(g,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) then
             if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
                 Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
