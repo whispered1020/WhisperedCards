@@ -50,7 +50,7 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.GetFirstTarget()
-    if #g>0 then
+    if g then
         local ct=Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
         if ct>0 then
             Duel.Recover(tp,ct*300,REASON_EFFECT)
