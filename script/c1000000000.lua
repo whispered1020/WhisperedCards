@@ -30,6 +30,7 @@ function s.initial_effect(c)
     c:RegisterEffect(e2)
 end
 s.listed_names = {59419719}
+s.listed_series={SET_FOSSIL}
 
 --
 function s.discard_filter(c)
