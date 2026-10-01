@@ -26,6 +26,18 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
+	--add itself to hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_PHASE|PHASE_STANDBY)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetRange(LOCATION_REMOVED)
+	e3:SetCondition(s.thcon)
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
+	c:RegisterEffect(e3)
 end
 s.listed_series={0x105}
 
@@ -113,5 +125,21 @@ function s.bnop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
 	if tc then
 		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
+	end
+end
+--
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnCount()==e:GetHandler():GetTurnID()+1
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,tp,LOCATION_DECK)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c and c:IsRelateToEffect(e) then
+		Duel.SendtoHand(c,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,c)
 	end
 end
