@@ -47,7 +47,7 @@ function s.pltg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.plop(e, tp, eg, ep, ev, re, r, rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local tc=Duel.SelectMatchingCard(tp,s.tffilter,tp,LOCATION_DECK,0,1,1,tp):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,s.tffilter,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
 	if tc then
 		Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 	end
