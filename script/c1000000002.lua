@@ -8,7 +8,7 @@ function s.initial_effect(c)
     e0:SetType(EFFECT_TYPE_SINGLE)
     e0:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
     e0:SetCode(EFFECT_CHANGE_CODE)
-    e0:SetRange(LOCATION_MZONE|LOCATION_GRAVE)
+    e0:SetRange(LOCATION_SZONE|LOCATION_GRAVE)
     e0:SetValue(59419719)
     c:RegisterEffect(e0)
     --Fusion Summon 1 Rock Fusion Monster from your Extra Deck, using monsters from your hand or field
