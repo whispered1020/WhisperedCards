@@ -71,9 +71,9 @@ end
 --
 function s.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return rp~=tp and c:IsReason(REASON_EFFECT) and c:IsPreviousPosition(POS_FACEUP)
+	return c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp) and rp==1-tp
 		and Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_GRAVE,0,1,nil,59419719)
-		and not c:IsLocation(LOCATION_DECK) and c:IsPreviousControler(tp)
+		and not c:IsLocation(LOCATION_DECK)
 end
 function s.damop(e, tp, eg, ep, ev, re, r, rp)
 	local c=e:GetHandler()
