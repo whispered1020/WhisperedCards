@@ -66,7 +66,7 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.cfilter(c)
-	return c:IsSetCard(SET_INZEKTOR) and c:IsAbleToGraveAsCost()
+	return c:IsSetCard(SET_INZEKTOR) and c:IsAbleToGraveAsCost() and not c:IsCode(id)
 end
 
 function s.eqcost(e,tp,eg,ep,ev,re,r,rp,chk)
