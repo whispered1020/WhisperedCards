@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	-- 1 Insect monster
-	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,{SET_INSECT}),1,1)
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,SET_INSECT),1,1)
 	--Special Summon from GY
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
