@@ -121,7 +121,7 @@ function s.equipop(c,e,tp,tc)
 	e2:SetCode(EFFECT_UPDATE_ATTACK)
 	e2:SetValue(atk)
 	e2:SetReset(RESET_EVENT|RESETS_STANDARD)
-	tc:RegisterEffect(e2)
+	c:RegisterEffect(e2)
 end
 
 function s.eqop(e,tp,eg,ep,ev,re,r,rp)
