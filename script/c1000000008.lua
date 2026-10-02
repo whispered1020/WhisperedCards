@@ -51,7 +51,9 @@ end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local ct=Duel.GetMatchingGroupCount(s.drfilter,tp,LOCATION_MZONE,0,nil)
+        local ct2=Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)
 		if ct>3 then ct=3 end
+        if ct2<ct then ct=ct2 end
 		return ct>0 and Duel.IsPlayerCanDraw(tp,ct)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
@@ -59,7 +61,9 @@ end
 
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetMatchingGroupCount(s.drfilter,tp,LOCATION_MZONE,0,nil)
+    local ct2=Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)
 	if ct>3 then ct=3 end
+    if ct2<ct then ct=ct2 end
 	if ct>0 then
 		Duel.Draw(tp,ct,REASON_EFFECT)
 	end
