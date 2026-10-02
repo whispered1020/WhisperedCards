@@ -40,7 +40,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function s.rmcostfilter(c)
-	return c:IsSetCard(SET_THUNDER_DRAGON) and c:IsMonster() and c:IsAbleToRemoveAsCost()
+	return c:IsSetCard(SET_THUNDER_DRAGON) and c:IsMonster() and c:IsAbleToRemoveAsCost() and not c:IsCode(id)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
