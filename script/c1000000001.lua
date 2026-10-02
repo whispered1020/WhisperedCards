@@ -3,7 +3,11 @@
 --Revised by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	c:EnableReviveLimit()
+	--Summon limit
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_CANNOT_SUMMON)
+	c:RegisterEffect(e0)
 	-- 1° EFEITO: Invocação-Especial por Procedimento Inerente Real
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
