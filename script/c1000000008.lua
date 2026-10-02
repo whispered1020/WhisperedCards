@@ -95,11 +95,11 @@ function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 
 function s.equipop(c,e,tp,tc)
-	local atk=tc:GetTextAttack()
-	if tc:IsFacedown() or atk<0 then
-		atk=0
-	elseif not tc:IsMonster() then
-		atk=500
+	local atk=0
+	if tc:IsMonster() and not tc:IsFacedown() then
+        atk=tc:GetTextAttack()
+    elseif tc:IsFacedown() or tc:IsSpellTrap() then
+        atk=500
 	end
 	if not Duel.Equip(tp,tc,c,true,REASON_EFFECT) then return end
 	local e0=Effect.CreateEffect(c)
