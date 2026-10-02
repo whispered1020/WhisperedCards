@@ -33,7 +33,7 @@ s.listed_names={59419719}
 
 --
 function s.fextra(e,tp,mg)
-	return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup),tp,0,LOCATION_ONFIELD,nil)
+	return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup),tp,LOCATION_ONFIELD,0,nil)
 end
 --
 function s.thconfilter(c,tp)
