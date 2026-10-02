@@ -39,7 +39,7 @@ s.listed_series={SET_INZEKTOR}
 
 --
 function s.drcon(e, tp, eg, ep, ev, re, r, rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
+	return e:GetHandler():IsLinkSummoned()
 end
 function s.drfilter(c)
 	return c:IsFaceup() and c:IsSetCard(SET_INZEKTOR)
