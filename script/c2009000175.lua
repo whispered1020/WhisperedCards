@@ -3,7 +3,8 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	Fusion.AddProcMix(c,true,true,s.tdfilter,1,1,s.thfilter,2,2)
+    Fusion.AddProcMixRep(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_THUNDER),2,2,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_THUNDER_DRAGON))
+    --Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_THUNDER_DRAGON),1,aux.FilterBoolFunctionEx(Card.IsRace,RACE_THUNDER),2)
 	--Special Summon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
