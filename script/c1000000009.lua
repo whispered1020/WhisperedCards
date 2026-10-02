@@ -52,6 +52,7 @@ function s.spfilter(c)
 end
 function s.spcon(e,c,tp)
 	if c==nil then return true end
+    local tp=c:GetControler()
 	return Duel.GetLocationCountFromEx(tp,tp,nil,c)>0
 		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_ONFIELD,0,2,c)
 end
