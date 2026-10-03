@@ -30,6 +30,7 @@ end
 
 function s.cfilter2(c,e,tp)
 	return c:IsSummonPlayer(1-tp) and c:IsCanBeEffectTarget(e) and c:IsAbleToHand()
+		and c:IsLocation(LOCATION_MZONE)
 end
 function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return s.cfilter2(chkc,e,tp) and eg:IsContains(chkc) end
