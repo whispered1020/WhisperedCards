@@ -25,18 +25,19 @@ function s.initial_effect(c)
     e1:SetTarget(s.sptg)
     e1:SetOperation(s.spop)
     c:RegisterEffect(e1)
-    -- GY: Place Grid Counter and lock battle position
+    --Place Grid Counter and lock battle position
     local e2=Effect.CreateEffect(c)
     e2:SetDescription(aux.Stringid(id,2))
-    e2:SetCategory(CATEGORY_POSITION)
-    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetCategory(CATEGORY_COUNTER+CATEGORY_POSITION)
+    e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
     e2:SetRange(LOCATION_GRAVE)
     e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e2:SetCountLimit(1,{id,3})
-    e2:SetCondition(s.gycon)
+    e2:SetCountLimit(1,{id,2})
+	e2:SetCondition(aux.exccon)
     e2:SetCost(aux.bfgcost)
-    e2:SetTarget(s.gytg)
-    e2:SetOperation(s.gyop)
+    e2:SetTarget(s.cttg)
+    e2:SetOperation(s.ctop)
     c:RegisterEffect(e2)
 end
 s.listed_series={0xf23,0xf24}
@@ -174,4 +175,33 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	if #g==0 then return end
 	local c=e:GetHandler()
 	g:NegateEffects(c,RESET_PHASE|PHASE_END,true)
+end
+--
+function s.filter(c)
+	return c:IsCanChangePosition() and c:IsCanAddCounter(0x1989,1)
+end
+function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) and chkc:IsCanAddCounter(0x1989,1) end
+	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+    Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
+end
+function s.ctop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:AddCounter(0x1989,1) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+		--Cannot change its battle position
+		local e1a=Effect.CreateEffect(e:GetHandler())
+		e1a:SetDescription(3313)
+		e1a:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+		e1a:SetType(EFFECT_TYPE_SINGLE)
+		e1a:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
+		e1a:SetReset(RESET_EVENT|RESETS_STANDARD)
+        e1a:SetCondition(s.poscon)
+		tc:RegisterEffect(e1a)
+	end
+end
+function s.poscon(e)
+	return e:GetHandler():GetCounter(0x1989)>0
 end
