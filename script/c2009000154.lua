@@ -79,6 +79,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	e1b:SetReset(RESET_PHASE|PHASE_END)
 	Duel.RegisterEffect(e1b,tp)
 end
+function s.poscon(e)
+	return e:GetHandler():GetCounter(0x1989)>0
+end
 function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsRace(RACE_ROCK)
 end
