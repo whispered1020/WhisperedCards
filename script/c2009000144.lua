@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
     c:EnableCounterPermit(0x1989)
-    --You can activate this card the turn it was Set, by revealing 1 Normal Monster in your hand
+    --You can activate this card the turn it was Set, by revealing 1 "Grid-" card in your hand
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(id,0))
 	e0:SetType(EFFECT_TYPE_SINGLE)
@@ -43,7 +43,7 @@ s.listed_series={0xf23,0xf24}
 s.listed_names={id,2009000184}
 
 function s.costfilter(c)
-	return c:IsSetCard(0xf23) and not c:IsPublic()
+	return c:IsSetCard(0xf24) and not c:IsPublic()
 end
 --
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
