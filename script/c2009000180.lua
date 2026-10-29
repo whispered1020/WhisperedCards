@@ -62,7 +62,7 @@ function s.seqop(e,tp,eg,ep,ev,re,r,rp,chk)
 	    local seq=Duel.SelectDisableField(tp,1,LOCATION_MZONE,0,0)
 	    if seq then
 		    Duel.MoveSequence(tc,math.log(seq,2))
-		    local dg=tc:GetColumnGroup():Filter(aux.AND(Card.IsMonster,Card.IsFaceup),tc,nil)
+		    local dg=tc:GetColumnGroup():Filter(aux.AND(Card.IsMonster,Card.IsFaceup),nil,nil)
 		    if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			    Duel.BreakEffect()
 			    for tc1 in dg:Iter() do
