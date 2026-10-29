@@ -78,7 +78,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.MoveSequence(tc,math.log(zone,2))
 	end
     local tcs=tc:GetSetCard()
-    if tcs and tcs[1]==0xf23 then
+    if tcs and tcs==0xf23 then
         if Duel.SelectYesNo(tp,aux.Stringid(id,4)) and s.sptg(e,tp,eg,ep,ev,re,r,rp,0) then
             Duel.BreakEffect()
             c:AddMonsterAttribute(TYPE_EFFECT)
