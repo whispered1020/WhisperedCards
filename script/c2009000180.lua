@@ -17,7 +17,7 @@ function s.initial_effect(c)
 	local e2=e1:Clone()
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e2)
-    --Move 1 monster card you control to another of your Main Monster Zones, then you can place 1 Grid Counter on all face-up cards in the moved card's column
+    --Move 1 monster card you control to another of your Main Monster Zones, then you can place 1 Grid Counter on all face-up monsters in the moved card's column
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetCategory(CATEGORY_COUNTER+CATEGORY_POSITION)
