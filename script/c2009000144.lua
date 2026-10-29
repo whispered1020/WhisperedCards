@@ -171,9 +171,10 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetFirstTarget()
-	if #g==0 then return end
-	local c=e:GetHandler()
-	g:NegateEffects(c,RESET_PHASE|PHASE_END,true)
+	if g then
+	    local c=e:GetHandler()
+	    g:NegateEffects(c,RESET_PHASE|PHASE_END,true)
+    end
 end
 --
 function s.filter(c)
