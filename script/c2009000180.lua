@@ -65,7 +65,7 @@ function s.seqop(e,tp,eg,ep,ev,re,r,rp,chk)
 		    local dg=tc:GetColumnGroup():Filter(Card.IsFaceup,tc,nil)
 		    if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			    Duel.BreakEffect()
-			    for tc1 in g:Iter() do
+			    for tc1 in dg:Iter() do
 		            tc1:AddCounter(0x1989,1)
                     Duel.ChangePosition(tc1,POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
 		            --Cannot change its battle position
