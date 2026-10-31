@@ -95,10 +95,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local cc=c:GetControler()
 	if cc==1-tp then cc=tp else cc=1-tp end
-	if not c:IsRelateToEffect(e) or not Duel.GetControl(c,cc) then return end
-	local fusion_params={handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_ROCK),matfilter=Fusion.OnFieldMat,gc=Fusion.ForcedHandler}
-		if Fusion.SummonEffTG(fusion_params)(e,tp,eg,ep,ev,re,r,rp,0) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+	if c:IsRelateToEffect(e) and Duel.GetControl(c,cc) then
+		local fusion_params={handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_ROCK),matfilter=Fusion.OnFieldMat,gc=Fusion.ForcedHandler}
+		if Fusion.SummonEffTG(fusion_params)(e,cc,eg,ep,ev,re,r,rp,0) and Duel.SelectYesNo(cc,aux.Stringid(id,2)) then
 			Duel.BreakEffect()
-			Fusion.SummonEffOP(fusion_params)(e,tp,eg,ep,ev,re,r,rp,1)
+			Fusion.SummonEffOP(fusion_params)(e,cc,eg,ep,ev,re,r,rp,1)
 		end
+	end
 end
