@@ -46,6 +46,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 --
+function s.desfilter(c,s,p)
+	local seq=c:GetSequence()
+	return seq<5 and c:IsControler(p) and math.abs(seq-s)==1
+end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and chkc:IsCanChangePosition() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsCanChangePosition,tp,LOCATION_MZONE,0,1,nil) end
