@@ -44,7 +44,7 @@ s.listed_series={0xf24}
 
 function s.lvfdfilter(c,seq)
 	return c:IsLocation(LOCATION_MZONE) and c:GetCounter(0x1989)>0
-		and (seq-1>=0 and c:GetPreviousSequence()==seq-1) or (seq+1<=4 and c:GetPreviousSequence()==seq+1)
+		and math.abs(c:GetSequence()-seq)==1
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(s.lvfdfilter,1,nil,e:GetHandler():GetSequence()) then
@@ -71,9 +71,12 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 --
 function s.spconfilter(c,seq)
-	return c:IsPreviousLocation(LOCATION_MZONE) or (c:IsMonsterCard() and not c:IsPreviousLocation(LOCATION_SZONE))
-		and (seq-1>=0 and c:GetPreviousSequence()==seq-1) or (seq+1<=4 and c:GetPreviousSequence()==seq+1)
-		and c:IsPreviousPosition(POS_FACEUP)
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousPosition(POS_FACEUP)
+		and (
+            (seq>0 and c:GetPreviousSequence()==seq-1)
+            or
+            (seq<4 and c:GetPreviousSequence()==seq+1)
+        )
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.spconfilter,1,nil,e:GetHandler():GetSequence()) and e:GetLabelObject():GetLabel()==1
