@@ -39,6 +39,7 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_DESTROYED)
 	c:RegisterEffect(e3)
 end
+s.counter_place_list={0x1989}
 s.listed_names={2009000176}
 s.listed_series={0xf24}
 

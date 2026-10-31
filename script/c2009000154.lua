@@ -2,7 +2,7 @@
 --Scripted by: Whispered
 local s,id=GetID()
 function s.initial_effect(c)
-	--Special Summon 1 "Gridbound" monster from Dedk
+	--Special Summon 1 "Gridbound" monster from Deck
 	local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_COUNTER+CATEGORY_POSITION)
@@ -26,6 +26,7 @@ function s.initial_effect(c)
     e2:SetOperation(s.ctop)
     c:RegisterEffect(e2)
 end
+s.counter_place_list={0x1989}
 s.listed_series={0xf23}
 function s.cfilter(c,ft,tp)
 	return c:IsRace(RACE_ROCK) and c:IsReleasable()
@@ -67,6 +68,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		    e1a:SetReset(RESET_EVENT|RESETS_STANDARD)
             e1a:SetCondition(s.poscon)
 		    tc:RegisterEffect(e1a)
+			local e1b=e1a:Clone()
+        	e1b:SetCode(EFFECT_CANNOT_CHANGE_POS_E)
+        	tc:RegisterEffect(e1b)
         end
     end
     --You cannot Special Summon monsters for the rest of this turn, except Rock monsters

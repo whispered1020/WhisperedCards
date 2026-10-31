@@ -39,6 +39,7 @@ function s.initial_effect(c)
     e2:SetOperation(s.ctop)
     c:RegisterEffect(e2)
 end
+s.counter_place_list={0x1989}
 s.listed_series={0xf23,0xf24}
 s.listed_names={id,2009000184}
 
@@ -200,6 +201,9 @@ function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 		e1a:SetReset(RESET_EVENT|RESETS_STANDARD)
         e1a:SetCondition(s.poscon)
 		tc:RegisterEffect(e1a)
+        local e1b=e1a:Clone()
+        e1b:SetCode(EFFECT_CANNOT_CHANGE_POS_E)
+        tc:RegisterEffect(e1b)
 	end
 end
 function s.poscon(e)

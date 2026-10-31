@@ -77,6 +77,9 @@ function s.seqop(e,tp,eg,ep,ev,re,r,rp,chk)
 		            e1a:SetReset(RESET_EVENT|RESETS_STANDARD)
                     e1a:SetCondition(s.poscon)
 		            tc1:RegisterEffect(e1a)
+					local e1b=e1a:Clone()
+        			e1b:SetCode(EFFECT_CANNOT_CHANGE_POS_E)
+        			tc:RegisterEffect(e1b)
 	            end
 		    end
 	    end
