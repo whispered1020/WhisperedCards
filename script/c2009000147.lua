@@ -42,12 +42,12 @@ end
 s.listed_names={2009000176}
 s.listed_series={0xf24}
 
-function s.lvfdfilter(c,seq)
+function s.lvfdfilter(c,seq,cc)
 	return c:IsLocation(LOCATION_MZONE) and c:GetCounter(0x1989)>0
-		and math.abs(c:GetSequence()-seq)==1
+		and math.abs(c:GetSequence()-seq)==1 and c:GetPreviousControler()==cc
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
-	if eg:IsExists(s.lvfdfilter,1,nil,e:GetHandler():GetSequence()) then
+	if eg:IsExists(s.lvfdfilter,1,nil,e:GetHandler():GetSequence(),e:GetHandler():GetControler()) then
 		e:SetLabel(1)
 	else
 		e:SetLabel(0)
